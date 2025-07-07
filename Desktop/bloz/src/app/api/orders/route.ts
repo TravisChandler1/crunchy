@@ -32,7 +32,13 @@ export async function DELETE(req: NextRequest) {
     await prisma.order.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    if (typeof error === "object" && error && "code" in error && (error as any).code === "P2025") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code?: unknown }).code === "string" &&
+      (error as { code: string }).code === "P2025"
+    ) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
     return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 });

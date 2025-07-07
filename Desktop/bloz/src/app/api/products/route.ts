@@ -12,7 +12,8 @@ export async function GET() {
 // POST create a new product
 export async function POST(req: NextRequest) {
   const data = await req.json();
-  const product = await prisma.product.create({ data });
+  // Ensure 'available' is set, default to true if not provided
+  const product = await prisma.product.create({ data: { ...data, available: data.available ?? true } });
   return NextResponse.json(product, { status: 201 });
 }
 

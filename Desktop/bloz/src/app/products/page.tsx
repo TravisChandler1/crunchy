@@ -5,23 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import { FaShoppingCart, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 
-const products = [
-  {
-    name: "Ripe Plantain Chips",
-    description: "Sweet, golden, and perfectly crunchy. Made from ripe plantains for a naturally sweet snack. Enjoy the authentic taste of Nigeria in every bite!",
-    image: "/ripe-plantain.jpeg",
-    price: "₦4,500",
-    priceValue: 4500,
-  },
-  {
-    name: "Unripe Plantain Chips",
-    description: "Savory, green, and extra crispy. Made from unripe plantains for a classic, hearty crunch. Perfect for those who love a less sweet, more traditional flavor!",
-    image: "/unripe-plantain.jpeg",
-    price: "₦4,500",
-    priceValue: 4500,
-  },
-];
-
 type CartItem = {
   name: string;
   image: string;
@@ -123,6 +106,7 @@ function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhon
 }
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<any[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<{ [name: string]: number }>({});
   const [cartOpen, setCartOpen] = useState(false);
@@ -133,6 +117,8 @@ export default function ProductsPage() {
   const toastTimeout = useRef<NodeJS.Timeout | null>(null);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [orderingEnabled, setOrderingEnabled] = useState(true);
+  const [showOrderingModal, setShowOrderingModal] = useState(false);
 
   // Cart persistence
   useEffect(() => {
@@ -142,6 +128,20 @@ export default function ProductsPage() {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    fetch('/api/settings/ordering')
+      .then(res => res.json())
+      .then(data => setOrderingEnabled(data.orderingEnabled))
+      .catch(() => setOrderingEnabled(true));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(() => setProducts([]));
+  }, []);
 
   const handleQuantityChange = (name: string, value: number) => {
     setQuantities((prev) => ({ ...prev, [name]: value }));
@@ -191,6 +191,10 @@ export default function ProductsPage() {
   };
 
   const handlePay = async () => {
+    if (!orderingEnabled) {
+      setShowOrderingModal(true);
+      return;
+    }
     if (!phone || phone.length < 7) {
       setPhoneError("Please enter a valid phone number.");
       return;
@@ -228,7 +232,10 @@ export default function ProductsPage() {
       <h1 className="text-3xl font-bold mb-10 text-yellow-800 drop-shadow" style={{ fontFamily: 'var(--font-brand)' }}>Our Products</h1>
       <div className="flex flex-col sm:flex-row gap-10 items-center justify-center w-full max-w-4xl">
         {products.map((product) => (
-          <div key={product.name} className="glass-card w-80 h-auto flex flex-col items-center p-6 rounded-2xl shadow-lg border border-yellow-200 animate-fade-in-up">
+          <div key={product.name} className={`glass-card w-80 h-auto flex flex-col items-center p-6 rounded-2xl shadow-lg border border-yellow-200 animate-fade-in-up relative ${!product.available ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+            {!product.available && (
+              <span className="absolute top-4 right-4 bg-gray-700 text-white text-xs font-bold px-3 py-1 rounded-full z-10">Unavailable</span>
+            )}
             <div className="relative w-56 h-56 rounded-xl overflow-hidden mb-4 border border-yellow-100">
               <Image
                 src={product.image}
@@ -247,16 +254,25 @@ export default function ProductsPage() {
                 <input
                   id={`qty-${product.name}`}
                   type="number"
-                  min={1}
-                  value={quantities[product.name] || 1}
-                  onChange={e => handleQuantityChange(product.name, Math.max(1, parseInt(e.target.value) || 1))}
+                  min={0}
+                  value={quantities[product.name] === undefined ? '' : quantities[product.name]}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val === '' || val === '0') {
+                      setQuantities(q => ({ ...q, [product.name]: undefined }));
+                    } else {
+                      handleQuantityChange(product.name, Math.max(1, parseInt(val) || 1));
+                    }
+                  }}
                   className="w-14 px-2 py-1 rounded bg-black/40 border border-yellow-200 text-yellow-50 text-center"
+                  disabled={!product.available}
                 />
               </div>
             </div>
             <button
-              className="mt-auto px-6 py-2 rounded-full bg-yellow-300 text-yellow-900 font-bold text-base shadow-lg hover:bg-yellow-400 transition"
+              className="mt-auto px-6 py-2 rounded-full bg-yellow-300 text-yellow-900 font-bold text-base shadow-lg hover:bg-yellow-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => handleAddToCart(product)}
+              disabled={!product.available}
             >
               Add to Cart
             </button>
@@ -350,6 +366,20 @@ export default function ProductsPage() {
                 Add More
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showOrderingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="glass-card p-8 rounded-3xl shadow-2xl border border-yellow-200 bg-white/90 flex flex-col items-center max-w-md w-full min-w-[320px] animate-fade-in-up">
+            <h2 className="text-2xl font-extrabold text-yellow-900 mb-4 text-center" style={{ fontFamily: 'var(--font-brand)' }}>Ordering Unavailable</h2>
+            <p className="text-yellow-800 text-center mb-6">We're currently out of stock, but production is starting soon! Please check back later to enjoy our delicious products.</p>
+            <button
+              className="mt-2 px-6 py-2 rounded-full bg-yellow-300 text-yellow-900 font-bold text-base shadow-lg hover:bg-yellow-400 transition"
+              onClick={() => setShowOrderingModal(false)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

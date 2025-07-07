@@ -1,10 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { FaBars, FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaLeaf, FaTruck, FaCog, FaEnvelope } from "react-icons/fa";
 
-const ADMIN_PASSWORD = "plantain123";
+const ADMIN_PASSWORD = "afolabi94";
 
 const sections = ["Dashboard", "Products", "Orders", "Testimonials", "Messages"];
+
+const sectionIcons = [
+  <FaCog key="Dashboard" />, // Dashboard
+  <FaBoxOpen key="Products" />, // Products
+  <FaTruck key="Orders" />, // Orders
+  <FaStar key="Testimonials" />, // Testimonials
+  <FaEnvelope key="Messages" /> // Messages
+];
 
 type Product = {
   id: string;
@@ -12,6 +21,7 @@ type Product = {
   description: string;
   price: string;
   image: string;
+  available: boolean;
 };
 
 type Order = {
@@ -41,6 +51,9 @@ export default function AdminPage() {
   const [productForm, setProductForm] = useState({ name: '', description: '', price: '', image: '' });
   const [orders, setOrders] = useState<Order[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [orderingEnabled, setOrderingEnabled] = useState(true);
+  const [orderingLoading, setOrderingLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -79,6 +92,13 @@ export default function AdminPage() {
         { id: '1', name: 'Ada O.', email: 'ada@example.com', message: 'Love your chips!', date: '2024-06-01' },
         { id: '2', name: 'Victor Olabanji', email: 'victor@example.com', message: 'How do I become a distributor?', date: '2024-06-02' },
       ]));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/settings/ordering')
+      .then(res => res.json())
+      .then(data => setOrderingEnabled(data.orderingEnabled))
+      .catch(() => setOrderingEnabled(true));
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -176,6 +196,20 @@ export default function AdminPage() {
     if (res.ok) setMessages(msgs => msgs.filter(m => m.id !== id));
   };
 
+  const handleToggleOrdering = async () => {
+    setOrderingLoading(true);
+    const res = await fetch('/api/settings/ordering', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderingEnabled: !orderingEnabled })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setOrderingEnabled(data.orderingEnabled);
+    }
+    setOrderingLoading(false);
+  };
+
   if (!loggedIn) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-black text-yellow-300">
@@ -204,19 +238,29 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold tracking-wide">Admin Dashboard</h1>
         <button onClick={handleLogout} className="px-4 py-2 rounded-full bg-black text-yellow-300 font-bold border border-yellow-200 hover:bg-yellow-900 transition">Logout</button>
       </header>
-      <div className="flex flex-1">
-        <nav className="w-56 bg-black/80 border-r border-yellow-900 flex flex-col gap-2 py-8 px-4 min-h-full">
-          {sections.map((s) => (
+      <div className="flex flex-1 min-h-screen">
+        <nav className={`transition-all duration-300 bg-black/80 border-r border-yellow-900 flex flex-col gap-2 py-8 px-2 h-screen ${sidebarOpen ? "w-56" : "w-14"}`} style={{ minWidth: sidebarOpen ? 224 : 56 }}>
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="mb-4 p-2 rounded-full bg-yellow-300 text-yellow-900 font-bold shadow hover:bg-yellow-400 transition self-end"
+            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {sidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
+          </button>
+          {sections.map((s, i) => (
             <button
               key={s}
               onClick={() => setSection(s)}
-              className={`text-left px-4 py-2 rounded-lg font-semibold transition ${section === s ? "bg-[#b6862c] text-white" : "hover:bg-yellow-900/30 text-yellow-200"}`}
+              className={`flex items-center gap-2 text-left px-2 py-2 rounded-lg font-semibold transition w-full ${section === s ? "bg-[#b6862c] text-white" : "hover:bg-yellow-900/30 text-yellow-200"}`}
+              style={{ justifyContent: sidebarOpen ? "flex-start" : "center" }}
             >
-              {s}
+              {sectionIcons[i]}
+              {sidebarOpen && <span>{s}</span>}
+              {!sidebarOpen && <span className="sr-only">{s}</span>}
             </button>
           ))}
         </nav>
-        <main className="flex-1 p-8">
+        <main className="flex-1 w-full p-2 sm:p-8">
           {section === "Dashboard" && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-yellow-300">Welcome to the Admin Dashboard</h2>
@@ -226,6 +270,17 @@ export default function AdminPage() {
           {section === "Products" && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-yellow-300">Product Management</h2>
+              <div className="flex items-center gap-4 mb-6">
+                <span className="font-semibold text-yellow-200">Ordering:</span>
+                <button
+                  onClick={handleToggleOrdering}
+                  className={`px-4 py-2 rounded-full font-bold shadow border transition ${orderingEnabled ? "bg-green-600 text-white border-green-700" : "bg-red-600 text-white border-red-700"}`}
+                  disabled={orderingLoading}
+                >
+                  {orderingEnabled ? "Enabled" : "Disabled"}
+                </button>
+                {orderingLoading && <span className="text-yellow-200 ml-2">Saving...</span>}
+              </div>
               <form onSubmit={handleAddOrEditProduct} className="mb-8 flex flex-col gap-3 bg-black/30 p-4 rounded-xl border border-yellow-900 max-w-lg">
                 <input
                   name="name"
@@ -266,7 +321,7 @@ export default function AdminPage() {
                   <button type="button" onClick={() => { setEditingProduct(null); setProductForm({ name: '', description: '', price: '', image: '' }); }} className="text-xs text-yellow-200 mt-1 underline">Cancel Edit</button>
                 )}
               </form>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-w-full">
                 <table className="min-w-full border border-yellow-900 bg-black/40">
                   <thead>
                     <tr className="text-yellow-300">
@@ -284,9 +339,25 @@ export default function AdminPage() {
                         <td className="p-2 border-b border-yellow-900 font-bold">{product.name}</td>
                         <td className="p-2 border-b border-yellow-900">{product.description}</td>
                         <td className="p-2 border-b border-yellow-900">{product.price}</td>
-                        <td className="p-2 border-b border-yellow-900 flex gap-2">
+                        <td className="p-2 border-b border-yellow-900 flex gap-2 items-center">
                           <button onClick={() => handleEditProduct(product)} className="px-2 py-1 rounded bg-yellow-300 text-yellow-900 font-bold hover:bg-yellow-400 transition text-xs">Edit</button>
                           <button onClick={() => handleDeleteProduct(product.id)} className="px-2 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-700 transition text-xs">Delete</button>
+                          <button
+                            onClick={async () => {
+                              const res = await fetch('/api/products', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ...product, available: !product.available })
+                              });
+                              if (res.ok) {
+                                const updated = await res.json();
+                                setProducts(products.map(p => p.id === updated.id ? updated : p));
+                              }
+                            }}
+                            className={`px-2 py-1 rounded font-bold text-xs transition ${product.available ? 'bg-green-700 text-white hover:bg-green-900' : 'bg-gray-400 text-gray-900 hover:bg-gray-500'}`}
+                          >
+                            {product.available ? 'Available' : 'Unavailable'}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -299,7 +370,7 @@ export default function AdminPage() {
           {section === "Orders" && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-yellow-300">Order Management</h2>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-w-full">
                 <table className="min-w-full border border-yellow-900 bg-black/40">
                   <thead>
                     <tr className="text-yellow-300">
@@ -353,7 +424,7 @@ export default function AdminPage() {
           {section === "Messages" && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-yellow-300">Message Management</h2>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-w-full">
                 <table className="min-w-full border border-yellow-900 bg-black/40">
                   <thead>
                     <tr className="text-yellow-300">

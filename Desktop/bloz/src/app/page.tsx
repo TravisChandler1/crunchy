@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaShieldAlt } from "react-icons/fa";
-import { HomeModernIcon, TruckIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import React from "react";
 

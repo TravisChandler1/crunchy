@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const ADMIN_PASSWORD = "plantain123";
 
@@ -279,7 +280,7 @@ export default function AdminPage() {
                   <tbody>
                     {products.map(product => (
                       <tr key={product.id} className="text-yellow-50">
-                        <td className="p-2 border-b border-yellow-900"><img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" /></td>
+                        <td className="p-2 border-b border-yellow-900"><Image src={product.image} alt={product.name} width={64} height={64} className="w-16 h-16 object-cover rounded" /></td>
                         <td className="p-2 border-b border-yellow-900 font-bold">{product.name}</td>
                         <td className="p-2 border-b border-yellow-900">{product.description}</td>
                         <td className="p-2 border-b border-yellow-900">{product.price}</td>

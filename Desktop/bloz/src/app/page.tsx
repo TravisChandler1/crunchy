@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaShieldAlt } from "react-icons/fa";
+import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog } from "react-icons/fa";
 import { useState } from "react";
 import React from "react";
 
@@ -104,7 +104,7 @@ export default function Home() {
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
       {/* Admin Icon */}
       <a href="/admin" className="fixed top-4 right-4 z-50 bg-yellow-300 text-yellow-900 rounded-full p-3 shadow-lg hover:bg-yellow-400 transition flex items-center justify-center" title="Admin Login">
-        <FaShieldAlt className="text-2xl" />
+        <FaUserCog className="text-2xl" />
       </a>
       {/* Full Page Plantain Background */}
       <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
@@ -128,27 +128,27 @@ export default function Home() {
       {/* What We Offer */}
       <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12 bg-[#b6862c]">
         <h2 className="text-2xl font-bold mb-6 text-yellow-200 drop-shadow">What We Offer</h2>
-        <div className="max-w-3xl w-full mx-auto flex flex-col sm:flex-row gap-6 justify-center">
+        <div className="max-w-3xl w-full mx-auto flex flex-col sm:flex-row flex-wrap gap-6 justify-center items-center">
           {/* Delivery */}
-          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up">
+          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up animate-float mx-auto my-4 shadow-xl" style={{ zIndex: 1 }}>
             <FaTruck className="text-yellow-300 text-4xl mb-1" />
             <h3 className="text-lg font-semibold text-yellow-300 mb-1">Delivery</h3>
             <p className="text-white/90 text-center">Get your favorite Crunchy Cruise Snacks delivered straight to your doorstep, fresh and fast, so you can keep cruising without missing a crunch.</p>
           </div>
           {/* Premium Taste */}
-          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up">
+          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up animate-float mx-auto my-4 shadow-xl" style={{ zIndex: 1 }}>
             <FaStar className="text-yellow-300 text-4xl mb-1" />
             <h3 className="text-lg font-semibold text-yellow-300 mb-1">Premium Taste</h3>
             <p className="text-white/90 text-center">Experience the irresistible flavor and perfect crunch of our expertly crafted plantain chips—each bite is a taste of pure joy and quality.</p>
           </div>
           {/* Pure Natural Ingredients */}
-          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up">
+          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up animate-float mx-auto my-4 shadow-xl" style={{ zIndex: 1 }}>
             <FaLeaf className="text-yellow-300 text-4xl mb-1" />
             <h3 className="text-lg font-semibold text-yellow-300 mb-1">Pure Natural Ingredients</h3>
             <p className="text-white/90 text-center">Made with only the freshest plantains and natural ingredients, our chips are free from artificial additives—just pure, wholesome goodness in every pack.</p>
           </div>
           {/* Pleasing Packaging */}
-          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up">
+          <div className="glass-card flex-1 min-w-[220px] max-w-xs flex flex-col items-center p-8 gap-3 animate-fade-in-up animate-float mx-auto my-4 shadow-xl" style={{ zIndex: 1 }}>
             <FaBoxOpen className="text-yellow-300 text-4xl mb-1" />
             <h3 className="text-lg font-semibold text-yellow-300 mb-1">Pleasing Packaging</h3>
             <p className="text-white/90 text-center">Our snacks come in attractive, secure packaging that keeps them fresh and makes every unboxing a delight—perfect for gifting or enjoying on the go.</p>

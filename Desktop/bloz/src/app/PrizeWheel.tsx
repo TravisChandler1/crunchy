@@ -26,12 +26,17 @@ function formatTime(ms: number) {
   return `${h}h ${m}m`;
 }
 
+function getRandomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export default function PrizeWheel() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
   const [tries, setTries] = useState(MAX_TRIES);
   const [cooldown, setCooldown] = useState(0);
+  const [spinCount, setSpinCount] = useState(0); // for unique spins
 
   // Load tries and cooldown from localStorage
   useEffect(() => {
@@ -73,10 +78,12 @@ export default function PrizeWheel() {
     // Always land on 'Try Again Later' (last prize)
     const prizeIndex = prizes.length - 1;
     const segmentAngle = 360 / prizes.length;
-    const randomExtra = Math.floor(Math.random() * segmentAngle); // for realism
-    const spins = 5;
-    const finalRotation = spins * 360 + (prizeIndex * segmentAngle) + randomExtra;
+    const randomExtra = getRandomInt(0, segmentAngle - 1); // for realism
+    const spins = 5 + getRandomInt(0, 2); // randomize full spins for each try
+    // Make each spin unique by adding spinCount*360
+    const finalRotation = spins * 360 + (prizeIndex * segmentAngle) + randomExtra + spinCount * 360;
     setRotation(finalRotation);
+    setSpinCount((c) => c + 1);
     setTimeout(() => {
       setSpinning(false);
       setResult(prizes[prizeIndex]);
@@ -97,12 +104,14 @@ export default function PrizeWheel() {
       <h2 className="text-2xl font-bold mb-4 text-yellow-200 drop-shadow" style={{ fontFamily: 'var(--font-brand)' }}>Spin the Prize Wheel!</h2>
       <div className="relative flex flex-col items-center">
         <div className="relative w-64 h-64 mb-6">
+          {/* Precise pointer */}
           <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ zIndex: 2 }}
+            className="absolute left-1/2 top-0 z-10"
+            style={{ transform: 'translateX(-50%)', width: 0, height: 0 }}
           >
-            {/* Pointer */}
-            <div className="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[32px] border-b-red-600 mx-auto" style={{ marginTop: -16 }} />
+            <svg width="32" height="32" viewBox="0 0 32 32">
+              <polygon points="16,0 26,24 16,20 6,24" fill="#dc2626" stroke="#fff" strokeWidth="2" />
+            </svg>
           </div>
           <svg
             width={256}
@@ -134,29 +143,30 @@ export default function PrizeWheel() {
             })}
             {/* Center circle */}
             <circle cx={128} cy={128} r={40} fill="#fff" stroke="#b6862c" strokeWidth={4} />
+            {/* Prize labels inside wheel */}
+            {prizes.map((prize, i) => {
+              const angle = (i * 360) / prizes.length + 360 / prizes.length / 2;
+              const rad = (angle * Math.PI) / 180;
+              const x = 128 + 65 * Math.cos(rad);
+              const y = 128 + 65 * Math.sin(rad);
+              return (
+                <text
+                  key={prize}
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                  fontSize="12"
+                  fontWeight="bold"
+                  fill="#78350f"
+                  transform={`rotate(${angle}, ${x}, ${y})`}
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >
+                  {prize}
+                </text>
+              );
+            })}
           </svg>
-          {/* Prize labels */}
-          {prizes.map((prize, i) => {
-            const angle = (i * 360) / prizes.length + 360 / prizes.length / 2;
-            const rad = (angle * Math.PI) / 180;
-            const x = 128 + 90 * Math.cos(rad);
-            const y = 128 + 90 * Math.sin(rad);
-            return (
-              <div
-                key={prize}
-                className="absolute text-xs font-bold text-yellow-900 drop-shadow"
-                style={{
-                  left: x,
-                  top: y,
-                  width: 80,
-                  textAlign: 'center',
-                  transform: `translate(-50%, -50%) rotate(${angle}deg)`
-                }}
-              >
-                {prize}
-              </div>
-            );
-          })}
         </div>
         <button
           className="px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition disabled:opacity-60"

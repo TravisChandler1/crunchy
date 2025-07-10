@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaBars, FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaLeaf, FaTruck, FaCog, FaEnvelope } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope } from "react-icons/fa";
 
 const ADMIN_PASSWORD = "afolabi94";
 

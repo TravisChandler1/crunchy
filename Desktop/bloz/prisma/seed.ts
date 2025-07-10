@@ -22,6 +22,57 @@ async function main() {
     ],
     skipDuplicates: true,
   });
+
+  // Seed example orders
+  await prisma.order.createMany({
+    data: [
+      {
+        customer: 'John Doe',
+        phone: '+2348012345678',
+        items: JSON.stringify([
+          { name: 'Ripe Plantain Chips', quantity: 2, price: '₦4,500' }
+        ]),
+        status: 'pending',
+        date: new Date('2024-06-01T10:00:00Z'),
+      },
+      {
+        customer: 'Jane Smith',
+        phone: '+2348012345679',
+        items: JSON.stringify([
+          { name: 'Unripe Plantain Chips', quantity: 1, price: '₦4,500' }
+        ]),
+        status: 'fulfilled',
+        date: new Date('2024-06-02T12:00:00Z'),
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed example messages
+  await prisma.message.createMany({
+    data: [
+      {
+        name: 'Ada O.',
+        email: 'ada@example.com',
+        message: 'Love your chips!',
+        date: new Date('2024-06-01T09:00:00Z'),
+      },
+      {
+        name: 'Victor Olabanji',
+        email: 'victor@example.com',
+        message: 'How do I become a distributor?',
+        date: new Date('2024-06-02T11:00:00Z'),
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed settings (if not exists)
+  await prisma.settings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, orderingEnabled: true },
+  });
 }
 
 main()

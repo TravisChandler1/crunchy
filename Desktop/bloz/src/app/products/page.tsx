@@ -9,8 +9,16 @@ type CartItem = {
   name: string;
   image: string;
   price: string;
-  priceValue: number;
   quantity: number;
+};
+
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  available: boolean;
 };
 
 const CartIcon = ({ count, onClick }: { count: number; onClick: () => void }) => (
@@ -27,7 +35,7 @@ const CartIcon = ({ count, onClick }: { count: number; onClick: () => void }) =>
   </button>
 );
 
-function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhone, phoneError }: {
+function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhone, phoneError, name, setName, nameError }: {
   cart: CartItem[];
   onClose: () => void;
   onRemove: (name: string) => void;
@@ -36,8 +44,11 @@ function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhon
   phone: string;
   setPhone: (v: string) => void;
   phoneError: string;
+  name: string;
+  setName: (v: string) => void;
+  nameError: string;
 }) {
-  const total = cart.reduce((sum, item) => sum + item.priceValue * item.quantity, 0);
+  const total = cart.reduce((sum, item) => sum + parseInt(item.price.replace(/[^\d]/g, ""), 10) * item.quantity, 0);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="glass-card relative p-10 rounded-3xl shadow-2xl border border-yellow-200 flex flex-col items-center max-w-md w-full min-w-[320px]">
@@ -70,7 +81,7 @@ function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhon
                   onChange={e => onUpdateQty(item.name, Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-14 px-2 py-1 rounded bg-black/30 border border-yellow-200 text-yellow-50 text-center"
                 />
-                <span className="text-yellow-200 font-bold">₦{item.priceValue * item.quantity}</span>
+                <span className="text-yellow-200 font-bold">₦{parseInt(item.price.replace(/[^\d]/g, ""), 10) * item.quantity}</span>
                 <button
                   className="ml-2 px-2 py-1 rounded bg-red-500 text-white hover:bg-red-700 text-xs font-bold"
                   onClick={() => onRemove(item.name)}
@@ -84,6 +95,15 @@ function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhon
           <span className="font-bold text-yellow-200">Total:</span>
           <span className="text-lg font-bold text-yellow-300">₦{total}</span>
         </div>
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg border border-yellow-200 text-yellow-900 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-300 mb-2"
+          required
+        />
+        {nameError && <div className="text-red-500 text-center font-bold mb-2">{nameError}</div>}
         <input
           type="tel"
           placeholder="Phone Number"
@@ -106,7 +126,7 @@ function CartModal({ cart, onClose, onRemove, onUpdateQty, onPay, phone, setPhon
 }
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<{ [name: string]: number }>({});
   const [cartOpen, setCartOpen] = useState(false);
@@ -117,6 +137,8 @@ export default function ProductsPage() {
   const toastTimeout = useRef<NodeJS.Timeout | null>(null);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
   const [orderingEnabled, setOrderingEnabled] = useState(true);
   const [showOrderingModal, setShowOrderingModal] = useState(false);
 
@@ -147,7 +169,7 @@ export default function ProductsPage() {
     setQuantities((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddToCart = (product: typeof products[0]) => {
+  const handleAddToCart = (product: Product) => {
     const quantity = quantities[product.name] || 1;
     setCart((prev) => {
       const existing = prev.find((item) => item.name === product.name);
@@ -164,7 +186,6 @@ export default function ProductsPage() {
             name: product.name,
             image: product.image,
             price: product.price,
-            priceValue: product.priceValue,
             quantity,
           },
         ];
@@ -195,6 +216,11 @@ export default function ProductsPage() {
       setShowOrderingModal(true);
       return;
     }
+    if (!name || name.trim().length < 2) {
+      setNameError("Please enter your name.");
+      return;
+    }
+    setNameError("");
     if (!phone || phone.length < 7) {
       setPhoneError("Please enter a valid phone number.");
       return;
@@ -205,7 +231,7 @@ export default function ProductsPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        customer: "Guest",
+        customer: name,
         phone,
         items: cart,
         status: "pending",
@@ -218,8 +244,11 @@ export default function ProductsPage() {
       setCartOpen(false);
       setShowSuccess(true);
       setPhone("");
+      setName("");
     }
   };
+
+  const getPriceValue = (price: string) => parseInt(price.replace(/[^\d]/g, ""), 10) || 0;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black py-16 px-4">
@@ -259,7 +288,11 @@ export default function ProductsPage() {
                   onChange={e => {
                     const val = e.target.value;
                     if (val === '' || val === '0') {
-                      setQuantities(q => ({ ...q, [product.name]: undefined }));
+                      setQuantities(q => {
+                        const newQ = { ...q };
+                        delete newQ[product.name];
+                        return newQ;
+                      });
                     } else {
                       handleQuantityChange(product.name, Math.max(1, parseInt(val) || 1));
                     }
@@ -290,6 +323,9 @@ export default function ProductsPage() {
           phone={phone}
           setPhone={setPhone}
           phoneError={phoneError}
+          name={name}
+          setName={setName}
+          nameError={nameError}
         />
       )}
       {showSuccess && (
@@ -312,12 +348,12 @@ export default function ProductsPage() {
                   <li key={item.name} className="py-1 flex items-center justify-between">
                     <span className="font-semibold text-yellow-900">{item.name}</span>
                     <span className="text-yellow-700">x{item.quantity}</span>
-                    <span className="text-yellow-700 font-bold">₦{item.priceValue * item.quantity}</span>
+                    <span className="text-yellow-700 font-bold">₦{getPriceValue(item.price) * item.quantity}</span>
                   </li>
                 ))}
               </ul>
               <div className="font-bold text-yellow-200 mt-2">
-                Total: ₦{lastOrder.reduce((sum, item) => sum + item.priceValue * item.quantity, 0)}
+                Total: ₦{lastOrder.reduce((sum, item) => sum + getPriceValue(item.price) * item.quantity, 0)}
               </div>
             </div>
             <button
@@ -347,7 +383,7 @@ export default function ProductsPage() {
             </div>
             <div className="text-yellow-100 text-center mb-6">
               You can proceed to checkout or continue shopping to add more products.<br />
-              <span className="text-yellow-300 font-semibold">Thank you for choosing Crunchy Cruise Snacks!</span>
+              <span className="text-yellow-300 font-semibold">Thank you for choosing Crunchy Cruise Snacks!&apos;</span>
             </div>
             <div className="flex gap-4 mt-2 w-full justify-center">
               <button

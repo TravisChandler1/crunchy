@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const prizes = [
   '10% Off',
@@ -8,34 +8,85 @@ const prizes = [
   'Try Again Later',
 ];
 
-const wheelColors = [
-  'bg-yellow-300',
-  'bg-yellow-500',
-  'bg-yellow-700',
-  'bg-yellow-400',
-  'bg-yellow-200',
-];
+const MAX_TRIES = 3;
+const COOLDOWN_HOURS = 6;
+const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
+
+function getCooldownRemaining(lastSpin: number) {
+  const now = Date.now();
+  const diff = lastSpin + COOLDOWN_MS - now;
+  return diff > 0 ? diff : 0;
+}
+
+function formatTime(ms: number) {
+  const h = Math.floor(ms / (60 * 60 * 1000));
+  const m = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+  return `${h}h ${m}m`;
+}
 
 export default function PrizeWheel() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
+  const [tries, setTries] = useState(MAX_TRIES);
+  const [cooldown, setCooldown] = useState(0);
+
+  // Load tries and cooldown from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('prizeWheel');
+    if (stored) {
+      const { triesLeft, lastSpin } = JSON.parse(stored);
+      const remaining = getCooldownRemaining(lastSpin);
+      if (triesLeft === 0 && remaining > 0) {
+        setTries(0);
+        setCooldown(remaining);
+      } else {
+        setTries(triesLeft ?? MAX_TRIES);
+        setCooldown(0);
+      }
+    }
+  }, []);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1000) {
+            setTries(MAX_TRIES);
+            localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: MAX_TRIES, lastSpin: 0 }));
+            return 0;
+          }
+          return prev - 1000;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [cooldown]);
 
   const handleSpin = () => {
-    if (spinning) return;
+    if (spinning || tries === 0 || cooldown > 0) return;
     setSpinning(true);
     setResult(null);
     // Always land on 'Try Again Later' (last prize)
     const prizeIndex = prizes.length - 1;
-    // Calculate rotation so the pointer lands on the last segment
     const segmentAngle = 360 / prizes.length;
     const randomExtra = Math.floor(Math.random() * segmentAngle); // for realism
-    const spins = 5; // number of full spins
+    const spins = 5;
     const finalRotation = spins * 360 + (prizeIndex * segmentAngle) + randomExtra;
     setRotation(finalRotation);
     setTimeout(() => {
       setSpinning(false);
       setResult(prizes[prizeIndex]);
+      const newTries = tries - 1;
+      if (newTries === 0) {
+        const now = Date.now();
+        setCooldown(COOLDOWN_MS);
+        localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: 0, lastSpin: now }));
+      } else {
+        localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: newTries, lastSpin: 0 }));
+      }
+      setTries(newTries);
     }, 3500);
   };
 
@@ -108,10 +159,18 @@ export default function PrizeWheel() {
         <button
           className="px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition disabled:opacity-60"
           onClick={handleSpin}
-          disabled={spinning}
+          disabled={spinning || tries === 0 || cooldown > 0}
         >
-          {spinning ? 'Spinning...' : 'Spin Now'}
+          {spinning ? 'Spinning...' : tries === 0 && cooldown > 0 ? 'Try Again Later' : 'Spin Now'}
         </button>
+        <div className="mt-4 text-yellow-900 font-bold">
+          {tries > 0 && cooldown === 0 && (
+            <span>{tries} spin{tries > 1 ? 's' : ''} left</span>
+          )}
+          {tries === 0 && cooldown > 0 && (
+            <span>Come back in {formatTime(cooldown)} to spin again!</span>
+          )}
+        </div>
         {result && (
           <div className="mt-6 text-lg font-bold text-yellow-900 bg-yellow-200 px-6 py-3 rounded-full shadow">
             {result === 'Try Again Later' ? 'Try Again Later! Better luck next time.' : `Congratulations! You won: ${result}`}

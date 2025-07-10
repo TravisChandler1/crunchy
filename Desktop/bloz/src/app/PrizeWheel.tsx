@@ -104,7 +104,7 @@ export default function PrizeWheel() {
   const CENTER = SVG_SIZE / 2;
   const RADIUS = 180;
   const LABEL_RADIUS = 130;
-  const FONT_SIZE = 18;
+  const FONT_SIZE = 14;
 
   return (
     <section className="w-full flex flex-col items-center justify-center py-12 bg-[#b6862c] border-t border-yellow-200">

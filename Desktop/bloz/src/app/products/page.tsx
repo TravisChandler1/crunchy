@@ -409,7 +409,7 @@ export default function ProductsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="glass-card p-8 rounded-3xl shadow-2xl border border-yellow-200 bg-white/90 flex flex-col items-center max-w-md w-full min-w-[320px] animate-fade-in-up">
             <h2 className="text-2xl font-extrabold text-yellow-900 mb-4 text-center" style={{ fontFamily: 'var(--font-brand)' }}>Ordering Unavailable</h2>
-            <p className="text-yellow-800 text-center mb-6">We're currently out of stock, but production is starting soon! Please check back later to enjoy our delicious products.</p>
+            <p className="text-yellow-800 text-center mb-6">We&apos;re currently out of stock, but production is starting soon! Please check back later to enjoy our delicious products.</p>
             <button
               className="mt-2 px-6 py-2 rounded-full bg-yellow-300 text-yellow-900 font-bold text-base shadow-lg hover:bg-yellow-400 transition"
               onClick={() => setShowOrderingModal(false)}

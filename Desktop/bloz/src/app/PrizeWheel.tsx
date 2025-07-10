@@ -6,7 +6,7 @@ const prizes = [
   '10% Off',
   'Free Delivery',
   '50% Off',
-  '1 Free Pouch of Our Chips',
+  '1 Full Chips',
   'Try Again Later',
 ];
 

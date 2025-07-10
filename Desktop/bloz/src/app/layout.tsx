@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Pacifico, Quicksand, Tektur } from "next/font/google
 import "./globals.css";
 import React from "react";
 import FlashMessage from "./FlashMessage";
+import PrizeWheel from "./PrizeWheel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,7 @@ export default function RootLayout({
       >
         {children}
         <FlashMessage />
+        <PrizeWheel />
         <footer className="w-full bg-black/80 border-t border-yellow-100 mt-8 py-8 px-4 text-yellow-50 flex flex-col items-center gap-4">
           <div className="text-2xl font-bold tracking-wide" style={{ fontFamily: 'var(--font-brand)' }}>Crunchy Cruise Snacks</div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 items-center text-sm">

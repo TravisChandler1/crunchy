@@ -99,24 +99,31 @@ export default function PrizeWheel() {
     }, 3500);
   };
 
+  // Wheel size and label placement
+  const SVG_SIZE = 400;
+  const CENTER = SVG_SIZE / 2;
+  const RADIUS = 180;
+  const LABEL_RADIUS = 130;
+  const FONT_SIZE = 18;
+
   return (
     <section className="w-full flex flex-col items-center justify-center py-12 bg-[#b6862c] border-t border-yellow-200">
       <h2 className="text-2xl font-bold mb-4 text-yellow-200 drop-shadow" style={{ fontFamily: 'var(--font-brand)' }}>Spin the Prize Wheel!</h2>
       <div className="relative flex flex-col items-center">
-        <div className="relative w-64 h-64 mb-6">
+        <div className="relative" style={{ width: SVG_SIZE, height: SVG_SIZE, minWidth: SVG_SIZE, minHeight: SVG_SIZE }}>
           {/* Precise pointer */}
           <div
             className="absolute left-1/2 top-0 z-10"
             style={{ transform: 'translateX(-50%)', width: 0, height: 0 }}
           >
-            <svg width="32" height="32" viewBox="0 0 32 32">
+            <svg width="48" height="48" viewBox="0 0 32 32">
               <polygon points="16,0 26,24 16,20 6,24" fill="#dc2626" stroke="#fff" strokeWidth="2" />
             </svg>
           </div>
           <svg
-            width={256}
-            height={256}
-            viewBox="0 0 256 256"
+            width={SVG_SIZE}
+            height={SVG_SIZE}
+            viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
             className="block mx-auto"
             style={{ transition: 'transform 3.2s cubic-bezier(0.23, 1, 0.32, 1)', transform: `rotate(${rotation}deg)` }}
           >
@@ -124,12 +131,11 @@ export default function PrizeWheel() {
               const startAngle = (i * 360) / prizes.length;
               const endAngle = ((i + 1) * 360) / prizes.length;
               const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-              const radius = 120;
-              const x1 = 128 + radius * Math.cos((Math.PI * startAngle) / 180);
-              const y1 = 128 + radius * Math.sin((Math.PI * startAngle) / 180);
-              const x2 = 128 + radius * Math.cos((Math.PI * endAngle) / 180);
-              const y2 = 128 + radius * Math.sin((Math.PI * endAngle) / 180);
-              const d = `M128,128 L${x1},${y1} A${radius},${radius} 0 ${largeArc} 1 ${x2},${y2} Z`;
+              const x1 = CENTER + RADIUS * Math.cos((Math.PI * startAngle) / 180);
+              const y1 = CENTER + RADIUS * Math.sin((Math.PI * startAngle) / 180);
+              const x2 = CENTER + RADIUS * Math.cos((Math.PI * endAngle) / 180);
+              const y2 = CENTER + RADIUS * Math.sin((Math.PI * endAngle) / 180);
+              const d = `M${CENTER},${CENTER} L${x1},${y1} A${RADIUS},${RADIUS} 0 ${largeArc} 1 ${x2},${y2} Z`;
               const fill = [
                 '#fde047', // yellow-300
                 '#facc15', // yellow-500
@@ -142,13 +148,13 @@ export default function PrizeWheel() {
               );
             })}
             {/* Center circle */}
-            <circle cx={128} cy={128} r={40} fill="#fff" stroke="#b6862c" strokeWidth={4} />
+            <circle cx={CENTER} cy={CENTER} r={80} fill="#fff" stroke="#b6862c" strokeWidth={6} />
             {/* Prize labels inside wheel */}
             {prizes.map((prize, i) => {
               const angle = (i * 360) / prizes.length + 360 / prizes.length / 2;
               const rad = (angle * Math.PI) / 180;
-              const x = 128 + 65 * Math.cos(rad);
-              const y = 128 + 65 * Math.sin(rad);
+              const x = CENTER + LABEL_RADIUS * Math.cos(rad);
+              const y = CENTER + LABEL_RADIUS * Math.sin(rad);
               return (
                 <text
                   key={prize}
@@ -156,11 +162,11 @@ export default function PrizeWheel() {
                   y={y}
                   textAnchor="middle"
                   alignmentBaseline="middle"
-                  fontSize="12"
+                  fontSize={FONT_SIZE}
                   fontWeight="bold"
                   fill="#78350f"
                   transform={`rotate(${angle}, ${x}, ${y})`}
-                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  style={{ pointerEvents: 'none', userSelect: 'none', fontFamily: 'Quicksand, sans-serif' }}
                 >
                   {prize}
                 </text>
@@ -169,7 +175,7 @@ export default function PrizeWheel() {
           </svg>
         </div>
         <button
-          className="px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition disabled:opacity-60"
+          className="px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition disabled:opacity-60 mt-8"
           onClick={handleSpin}
           disabled={spinning || tries === 0 || cooldown > 0}
         >

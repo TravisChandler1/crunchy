@@ -3,6 +3,7 @@ import Image from "next/image";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog } from "react-icons/fa";
 import { useState } from "react";
 import React from "react";
+import PrizeWheel from "./PrizeWheel";
 
 const testimonials = [
   {
@@ -231,6 +232,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <PrizeWheel />
       <ContactSection />
     </div>
   );

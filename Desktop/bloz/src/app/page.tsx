@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog } from "react-icons/fa";
+import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCode } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import React from "react";
 import PrizeWheel from "./PrizeWheel";
@@ -92,12 +92,18 @@ function ContactSection() {
 
 export default function Home() {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
+  const [eggClicks, setEggClicks] = useState(0);
+  const [showEggModal, setShowEggModal] = useState(false);
   useEffect(() => {
     fetch('/api/testimonials')
       .then(res => res.json())
       .then(data => setTestimonials(data))
       .catch(() => setTestimonials([]));
   }, []);
+  useEffect(() => {
+    if (eggClicks === 5) setShowEggModal(true);
+    if (eggClicks > 5) setEggClicks(0);
+  }, [eggClicks]);
   return (
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
       {/* Admin Icon */}
@@ -231,6 +237,29 @@ export default function Home() {
       </section>
       <PrizeWheel />
       <ContactSection />
+      {/* Footer with Easter Egg */}
+      <footer className="w-full flex flex-col items-center justify-center py-6 bg-black/80 mt-8 relative z-10">
+        <button
+          aria-label="Developer Easter Egg"
+          className="text-yellow-300 hover:text-yellow-400 transition text-2xl p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          onClick={() => setEggClicks(c => c + 1)}
+        >
+          <FaCode />
+        </button>
+        <span className="text-xs text-yellow-100 mt-2">&copy; {new Date().getFullYear()} Crunchy Cruise Snacks</span>
+      </footer>
+      {/* Easter Egg Modal */}
+      {showEggModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setShowEggModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-xs w-full flex flex-col items-center relative" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-2 right-2 text-yellow-700 text-xl font-bold" onClick={() => setShowEggModal(false)}>&times;</button>
+            <FaCode className="text-4xl text-yellow-400 mb-2" />
+            <h3 className="text-lg font-bold mb-1 text-yellow-800">Developer</h3>
+            <p className="text-base text-yellow-900 mb-2">Oladeni Obaloluwa</p>
+            <a href="https://github.com/TravisChandler1" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">github.com/TravisChandler1</a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

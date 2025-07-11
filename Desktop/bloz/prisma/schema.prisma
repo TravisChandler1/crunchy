@@ -37,4 +37,11 @@ model Message {
 model Settings {
   id      Int      @id @default(1)
   orderingEnabled Boolean @default(true)
+}
+
+model Testimonial {
+  id    String   @id @default(uuid())
+  name  String
+  text  String
+  date  DateTime @default(now())
 } 

@@ -76,6 +76,28 @@ async function main() {
     skipDuplicates: true,
   });
 
+  // Seed example testimonials
+  await prisma.testimonial.createMany({
+    data: [
+      {
+        name: 'Adebanjo Temiloluwa',
+        text: "Crunchy Cruise Snacks are the best plantain chips I've ever tasted! Perfect crunch, perfect flavor.",
+        date: new Date('2024-06-01T08:00:00Z'),
+      },
+      {
+        name: 'Victor Olabanji',
+        text: "I love both the ripe and unripe chips. The motto says it all: as you dey crunch, just dey cruise!",
+        date: new Date('2024-06-02T10:00:00Z'),
+      },
+      {
+        name: 'Mrs. Oladele',
+        text: "My kids can't get enough. Always fresh and delicious!",
+        date: new Date('2024-06-03T12:00:00Z'),
+      },
+    ],
+    skipDuplicates: true,
+  });
+
   // Seed settings (if not exists)
   await prisma.settings.upsert({
     where: { id: 1 },

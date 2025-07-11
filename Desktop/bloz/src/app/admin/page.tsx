@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope, FaEdit, FaTrash } from "react-icons/fa";
 
 const ADMIN_PASSWORD = "afolabi94";
 
@@ -41,6 +41,13 @@ type Message = {
   date: string;
 };
 
+type Testimonial = {
+  id: string;
+  name: string;
+  text: string;
+  date: string;
+};
+
 export default function AdminPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [password, setPassword] = useState("");
@@ -54,6 +61,9 @@ export default function AdminPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [orderingEnabled, setOrderingEnabled] = useState(true);
   const [orderingLoading, setOrderingLoading] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialForm, setTestimonialForm] = useState({ name: '', text: '' });
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -92,6 +102,13 @@ export default function AdminPage() {
         { id: '1', name: 'Ada O.', email: 'ada@example.com', message: 'Love your chips!', date: '2024-06-01' },
         { id: '2', name: 'Victor Olabanji', email: 'victor@example.com', message: 'How do I become a distributor?', date: '2024-06-02' },
       ]));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/testimonials')
+      .then(res => res.json())
+      .then(data => setTestimonials(data))
+      .catch(() => setTestimonials([]));
   }, []);
 
   useEffect(() => {
@@ -194,6 +211,55 @@ export default function AdminPage() {
       body: JSON.stringify({ id })
     });
     if (res.ok) setMessages(msgs => msgs.filter(m => m.id !== id));
+  };
+
+  const handleTestimonialFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTestimonialForm({ ...testimonialForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAddOrEditTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTestimonial) {
+      // Update testimonial
+      const res = await fetch('/api/testimonials', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingTestimonial.id, ...testimonialForm })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setTestimonials(testimonials.map(t => t.id === updated.id ? updated : t));
+        setEditingTestimonial(null);
+        setTestimonialForm({ name: '', text: '' });
+      }
+    } else {
+      // Add testimonial
+      const res = await fetch('/api/testimonials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testimonialForm)
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setTestimonials([...testimonials, created]);
+        setTestimonialForm({ name: '', text: '' });
+      }
+    }
+  };
+
+  const handleEditTestimonial = (testimonial: Testimonial) => {
+    setEditingTestimonial(testimonial);
+    setTestimonialForm({ name: testimonial.name, text: testimonial.text });
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    const res = await fetch('/api/testimonials', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    if (res.ok) setTestimonials(testimonials.filter(t => t.id !== id));
+    if (editingTestimonial && editingTestimonial.id === id) setEditingTestimonial(null);
   };
 
   const handleToggleOrdering = async () => {
@@ -418,7 +484,56 @@ export default function AdminPage() {
           {section === "Testimonials" && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-yellow-300">Testimonial Management</h2>
-              <p className="text-yellow-100">(Testimonial management UI coming soon...)</p>
+              <form onSubmit={handleAddOrEditTestimonial} className="mb-8 flex flex-col gap-3 bg-black/30 p-4 rounded-xl border border-yellow-900 max-w-lg">
+                <input
+                  name="name"
+                  value={testimonialForm.name}
+                  onChange={handleTestimonialFormChange}
+                  placeholder="Customer Name"
+                  required
+                  className="px-3 py-2 rounded border border-yellow-200 bg-black/10 text-yellow-900"
+                />
+                <textarea
+                  name="text"
+                  value={testimonialForm.text}
+                  onChange={handleTestimonialFormChange}
+                  placeholder="Testimonial Text"
+                  required
+                  className="px-3 py-2 rounded border border-yellow-200 bg-black/10 text-yellow-900"
+                />
+                <button type="submit" className="px-4 py-2 rounded-full bg-yellow-300 text-yellow-900 font-bold shadow hover:bg-yellow-400 transition">
+                  {editingTestimonial ? 'Update Testimonial' : 'Add Testimonial'}
+                </button>
+                {editingTestimonial && (
+                  <button type="button" onClick={() => { setEditingTestimonial(null); setTestimonialForm({ name: '', text: '' }); }} className="text-xs text-yellow-200 mt-1 underline">Cancel Edit</button>
+                )}
+              </form>
+              <div className="overflow-x-auto max-w-full">
+                <table className="min-w-full border border-yellow-900 bg-black/40">
+                  <thead>
+                    <tr className="text-yellow-300">
+                      <th className="p-2 border-b border-yellow-900">Name</th>
+                      <th className="p-2 border-b border-yellow-900">Testimonial</th>
+                      <th className="p-2 border-b border-yellow-900">Date</th>
+                      <th className="p-2 border-b border-yellow-900">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {testimonials.map(t => (
+                      <tr key={t.id} className="text-yellow-50">
+                        <td className="p-2 border-b border-yellow-900 font-bold">{t.name}</td>
+                        <td className="p-2 border-b border-yellow-900">{t.text}</td>
+                        <td className="p-2 border-b border-yellow-900">{new Date(t.date).toLocaleDateString()}</td>
+                        <td className="p-2 border-b border-yellow-900 flex gap-2">
+                          <button onClick={() => handleEditTestimonial(t)} className="px-2 py-1 rounded bg-yellow-300 text-yellow-900 font-bold hover:bg-yellow-400 transition text-xs flex items-center gap-1"><FaEdit /> Edit</button>
+                          <button onClick={() => handleDeleteTestimonial(t.id)} className="px-2 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-700 transition text-xs flex items-center gap-1"><FaTrash /> Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {testimonials.length === 0 && <div className="text-yellow-200 mt-4">No testimonials yet.</div>}
+              </div>
             </div>
           )}
           {section === "Messages" && (

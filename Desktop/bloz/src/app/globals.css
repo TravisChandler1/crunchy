@@ -37,6 +37,13 @@ body {
   animation: marquee 30s linear infinite;
 }
 
+@media (max-width: 640px) {
+  .animate-marquee {
+    animation-duration: 15s !important;
+    min-width: 200vw !important;
+  }
+}
+
 @keyframes kenburns {
   0% {
     transform: scale(1) translate(0, 0);

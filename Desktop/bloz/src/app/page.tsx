@@ -188,8 +188,8 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-4 text-yellow-800">Testimonials</h2>
         <div className="relative w-full overflow-x-hidden">
           <div className="max-w-3xl w-full mx-auto">
-            <div className="flex items-center gap-10 animate-marquee" style={{ animation: 'marquee 7s linear infinite' }}>
-              {[...testimonials, ...testimonials, ...testimonials].map((t, i) => (
+            <div className="flex items-center gap-10 animate-marquee" style={{ animation: 'marquee 7s linear infinite', width: 'max-content' }}>
+              {[...testimonials, ...testimonials].map((t, i) => (
                 <div
                   key={i}
                   className="glass-card flex-shrink-0 rounded-lg shadow flex flex-col items-center border border-yellow-100 w-80 h-64 p-6 mx-4"

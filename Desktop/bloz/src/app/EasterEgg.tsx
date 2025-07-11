@@ -36,14 +36,14 @@ export default function EasterEgg() {
             >
               &times;
             </button>
-            <GiSecretBook className="text-yellow-400 text-4xl mb-2 animate-bounce" />
-            <h3 className="text-xl font-bold text-yellow-900 mb-2">Developer</h3>
-            <p className="text-yellow-800 font-semibold mb-2">Oladeni Obaloluwa</p>
+            <GiSecretBook className="text-yellow-400 text-2xl mb-2 animate-bounce" />
+            <h3 className="text-xl font-bold text-white mb-2">Developer</h3>
+            <p className="text-white font-semibold mb-2">Oladeni Obaloluwa</p>
             <a
               href="https://github.com/TravisChandler1"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline hover:text-blue-800"
+              className="text-white underline hover:text-yellow-200"
             >
               github.com/TravisChandler1
             </a>

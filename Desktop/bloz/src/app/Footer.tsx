@@ -1,5 +1,4 @@
 "use client";
-import { FaEgg } from "react-icons/fa";
 import EasterEgg from "./EasterEgg";
 
 export default function Footer() {

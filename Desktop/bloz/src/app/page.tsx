@@ -96,7 +96,7 @@ interface HomeProps {
   setShowEggModal?: (v: boolean) => void;
 }
 
-export default function Home({ showEggModal, setShowEggModal }: HomeProps) {
+export default function Home() {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
   useEffect(() => {
     fetch('/api/testimonials')
@@ -237,18 +237,6 @@ export default function Home({ showEggModal, setShowEggModal }: HomeProps) {
       </section>
       <PrizeWheel />
       <ContactSection />
-      {/* Easter Egg Modal */}
-      {showEggModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setShowEggModal?.(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-xs w-full flex flex-col items-center relative" onClick={e => e.stopPropagation()}>
-            <button className="absolute top-2 right-2 text-yellow-700 text-xl font-bold" onClick={() => setShowEggModal?.(false)}>&times;</button>
-            <FaCode className="text-4xl text-yellow-400 mb-2" />
-            <h3 className="text-lg font-bold mb-1 text-yellow-800">Developer</h3>
-            <p className="text-base text-yellow-900 mb-2">Oladeni Obaloluwa</p>
-            <a href="https://github.com/TravisChandler1" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">github.com/TravisChandler1</a>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

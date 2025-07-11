@@ -27,7 +27,7 @@ async function main() {
   await prisma.order.createMany({
     data: [
       {
-        customer: 'John Doe',
+        customer: 'Adebanjo Temiloluwa',
         phone: '+2348012345678',
         items: JSON.stringify([
           { name: 'Ripe Plantain Chips', quantity: 2, price: '₦4,500' }
@@ -36,13 +36,22 @@ async function main() {
         date: new Date('2024-06-01T10:00:00Z'),
       },
       {
-        customer: 'Jane Smith',
+        customer: 'Victor Olabanji',
         phone: '+2348012345679',
         items: JSON.stringify([
           { name: 'Unripe Plantain Chips', quantity: 1, price: '₦4,500' }
         ]),
         status: 'fulfilled',
         date: new Date('2024-06-02T12:00:00Z'),
+      },
+      {
+        customer: 'Mrs. Oladele',
+        phone: '+2348012345680',
+        items: JSON.stringify([
+          { name: 'Ripe Plantain Chips', quantity: 3, price: '₦4,500' }
+        ]),
+        status: 'pending',
+        date: new Date('2024-06-03T14:00:00Z'),
       },
     ],
     skipDuplicates: true,

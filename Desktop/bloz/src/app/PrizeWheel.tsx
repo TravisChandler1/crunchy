@@ -11,23 +11,10 @@ const prizes = [
 ];
 
 const MAX_TRIES = 3;
-const COOLDOWN_HOURS = 6;
-const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
 
-function getCooldownRemaining(lastSpin: number) {
-  const now = Date.now();
-  const diff = lastSpin + COOLDOWN_MS - now;
-  return diff > 0 ? diff : 0;
-}
-
-function formatTime(ms: number) {
-  const h = Math.floor(ms / (60 * 60 * 1000));
-  const m = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
-  return `${h}h ${m}m`;
-}
-
-function getRandomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function getTodayKey() {
+  const now = new Date();
+  return now.toISOString().slice(0, 10); // YYYY-MM-DD
 }
 
 export default function PrizeWheel() {
@@ -35,51 +22,56 @@ export default function PrizeWheel() {
   const [result, setResult] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
   const [tries, setTries] = useState(MAX_TRIES);
-  const [cooldown, setCooldown] = useState(0);
   const [spinCount, setSpinCount] = useState(0); // for unique spins
+  const [resetIn, setResetIn] = useState(0);
 
-  // Load tries and cooldown from localStorage
+  // Load tries from localStorage for today
   useEffect(() => {
+    const todayKey = getTodayKey();
     const stored = localStorage.getItem('prizeWheel');
     if (stored) {
-      const { triesLeft, lastSpin } = JSON.parse(stored);
-      const remaining = getCooldownRemaining(lastSpin);
-      if (triesLeft === 0 && remaining > 0) {
-        setTries(0);
-        setCooldown(remaining);
-      } else {
+      const { date, triesLeft } = JSON.parse(stored);
+      if (date === todayKey) {
         setTries(triesLeft ?? MAX_TRIES);
-        setCooldown(0);
+      } else {
+        setTries(MAX_TRIES);
+        localStorage.setItem('prizeWheel', JSON.stringify({ date: todayKey, triesLeft: MAX_TRIES }));
       }
+    } else {
+      setTries(MAX_TRIES);
+      localStorage.setItem('prizeWheel', JSON.stringify({ date: todayKey, triesLeft: MAX_TRIES }));
     }
   }, []);
 
-  // Cooldown timer
+  // Timer to reset at midnight
   useEffect(() => {
-    if (cooldown > 0) {
-      const interval = setInterval(() => {
-        setCooldown((prev) => {
-          if (prev <= 1000) {
-            setTries(MAX_TRIES);
-            localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: MAX_TRIES, lastSpin: 0 }));
-            return 0;
-          }
-          return prev - 1000;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [cooldown]);
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setHours(24, 0, 0, 0);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    setResetIn(msUntilMidnight);
+    const interval = setInterval(() => {
+      setResetIn((prev) => {
+        if (prev <= 1000) {
+          setTries(MAX_TRIES);
+          localStorage.setItem('prizeWheel', JSON.stringify({ date: getTodayKey(), triesLeft: MAX_TRIES }));
+          return 0;
+        }
+        return prev - 1000;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSpin = () => {
-    if (spinning || tries === 0 || cooldown > 0) return;
+    if (spinning || tries === 0) return;
     setSpinning(true);
     setResult(null);
     // Always land on 'Try Again Later' (last prize)
     const prizeIndex = prizes.length - 1;
     const segmentAngle = 360 / prizes.length;
-    const randomExtra = getRandomInt(0, segmentAngle - 1); // for realism
-    const spins = 5 + getRandomInt(0, 2); // randomize full spins for each try
+    const randomExtra = Math.floor(Math.random() * segmentAngle); // for realism
+    const spins = 5 + Math.floor(Math.random() * 3); // randomize full spins for each try
     // Make each spin unique by adding spinCount*360
     const finalRotation = spins * 360 + (prizeIndex * segmentAngle) + randomExtra + spinCount * 360;
     setRotation(finalRotation);
@@ -88,14 +80,8 @@ export default function PrizeWheel() {
       setSpinning(false);
       setResult(prizes[prizeIndex]);
       const newTries = tries - 1;
-      if (newTries === 0) {
-        const now = Date.now();
-        setCooldown(COOLDOWN_MS);
-        localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: 0, lastSpin: now }));
-      } else {
-        localStorage.setItem('prizeWheel', JSON.stringify({ triesLeft: newTries, lastSpin: 0 }));
-      }
       setTries(newTries);
+      localStorage.setItem('prizeWheel', JSON.stringify({ date: getTodayKey(), triesLeft: newTries }));
     }, 3500);
   };
 
@@ -105,6 +91,12 @@ export default function PrizeWheel() {
   const RADIUS = 180;
   const LABEL_RADIUS = 130;
   const FONT_SIZE = 14;
+
+  function formatTime(ms: number) {
+    const h = Math.floor(ms / (60 * 60 * 1000));
+    const m = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+    return `${h}h ${m}m`;
+  }
 
   return (
     <section className="w-full flex flex-col items-center justify-center py-12 bg-[#b6862c] border-t border-yellow-200">
@@ -177,16 +169,16 @@ export default function PrizeWheel() {
         <button
           className="px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition disabled:opacity-60 mt-8"
           onClick={handleSpin}
-          disabled={spinning || tries === 0 || cooldown > 0}
+          disabled={spinning || tries === 0}
         >
-          {spinning ? 'Spinning...' : tries === 0 && cooldown > 0 ? 'Try Again Later' : 'Spin Now'}
+          {spinning ? 'Spinning...' : tries === 0 ? 'No Spins Left' : 'Spin Now'}
         </button>
         <div className="mt-4 text-yellow-900 font-bold">
-          {tries > 0 && cooldown === 0 && (
-            <span>{tries} spin{tries > 1 ? 's' : ''} left</span>
+          {tries > 0 && (
+            <span>{tries} spin{tries > 1 ? 's' : ''} left today</span>
           )}
-          {tries === 0 && cooldown > 0 && (
-            <span>Come back in {formatTime(cooldown)} to spin again!</span>
+          {tries === 0 && (
+            <span>Come back in {formatTime(resetIn)} for more spins!</span>
           )}
         </div>
         {result && (

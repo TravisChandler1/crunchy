@@ -98,17 +98,12 @@ interface HomeProps {
 
 export default function Home({ showEggModal, setShowEggModal }: HomeProps) {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
-  const [eggClicks, setEggClicks] = useState(0);
   useEffect(() => {
     fetch('/api/testimonials')
       .then(res => res.json())
       .then(data => setTestimonials(data))
       .catch(() => setTestimonials([]));
   }, []);
-  useEffect(() => {
-    if (eggClicks === 5) setShowEggModal?.(true);
-    if (eggClicks > 5) setEggClicks(0);
-  }, [eggClicks]);
   return (
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
       {/* Admin Icon */}

@@ -1,24 +1,9 @@
 "use client";
 import Image from "next/image";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import PrizeWheel from "./PrizeWheel";
-
-const testimonials = [
-  {
-    name: "Adebanjo Temiloluwa",
-    text: "Crunchy Cruise Snacks are the best plantain chips I've ever tasted! Perfect crunch, perfect flavor.",
-  },
-  {
-    name: "Victor Olabanji",
-    text: "I love both the ripe and unripe chips. The motto says it all: as you dey crunch, just dey cruise!",
-  },
-  {
-    name: "Mrs. Oladele",
-    text: "My kids can't get enough. Always fresh and delicious!",
-  },
-];
 
 const galleryImages = [
   "/1.jpeg",
@@ -106,6 +91,13 @@ function ContactSection() {
 }
 
 export default function Home() {
+  const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
+  useEffect(() => {
+    fetch('/api/testimonials')
+      .then(res => res.json())
+      .then(data => setTestimonials(data))
+      .catch(() => setTestimonials([]));
+  }, []);
   return (
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
       {/* Admin Icon */}

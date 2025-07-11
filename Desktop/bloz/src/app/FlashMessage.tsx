@@ -28,7 +28,7 @@ export default function FlashMessage() {
         setIndex((i) => (i + 1) % messages.length);
         setShow(true);
       }, 2000); // fade out duration
-    }, 20000); // show each message for 20s
+    }, 5000); // show each message for 20s
     return () => clearInterval(interval);
   }, [pathname]);
 

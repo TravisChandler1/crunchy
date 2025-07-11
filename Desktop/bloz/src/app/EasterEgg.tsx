@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { FaEgg } from "react-icons/fa";
+import { GiSecretBook } from "react-icons/gi";
 
 export default function EasterEgg() {
   const [count, setCount] = useState(0);
@@ -24,7 +24,7 @@ export default function EasterEgg() {
         className="bg-yellow-300 text-yellow-900 rounded-full p-3 shadow-lg hover:bg-yellow-400 transition flex items-center justify-center border-2 border-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
         style={{ fontSize: 28 }}
       >
-        <FaEgg />
+        <GiSecretBook />
       </button>
       {showModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm">
@@ -36,7 +36,7 @@ export default function EasterEgg() {
             >
               &times;
             </button>
-            <FaEgg className="text-yellow-400 text-4xl mb-2 animate-bounce" />
+            <GiSecretBook className="text-yellow-400 text-4xl mb-2 animate-bounce" />
             <h3 className="text-xl font-bold text-yellow-900 mb-2">Developer</h3>
             <p className="text-yellow-800 font-semibold mb-2">Oladeni Obaloluwa</p>
             <a

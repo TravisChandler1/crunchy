@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCode } from "react-icons/fa";
+import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import React from "react";
 import PrizeWheel from "./PrizeWheel";

@@ -4,6 +4,7 @@ import "./globals.css";
 import React from "react";
 import FlashMessage from "./FlashMessage";
 import Footer from "./Footer";
+import PageTransitionSpinner from "./PageTransitionSpinner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body
         className={`antialiased ${geistSans.variable} ${geistMono.variable} ${pacifico.variable} ${quicksand.variable} ${tektur.variable}`}
       >
+        <PageTransitionSpinner />
         {children}
         <FlashMessage />
         <Footer />

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const messages = [
   "Make a good choice and order today!",
@@ -28,7 +29,7 @@ export default function FlashMessage() {
         setIndex((i) => (i + 1) % messages.length);
         setShow(true);
       }, 2000); // fade out duration
-    }, 5000); // show each message for 20s
+    }, 7000); // show each message for 7s
     return () => clearInterval(interval);
   }, [pathname]);
 

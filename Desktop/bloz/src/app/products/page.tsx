@@ -171,6 +171,12 @@ export default function ProductsPage() {
 
   const handleAddToCart = (product: Product) => {
     const quantity = quantities[product.name] || 1;
+    // Play sound
+    if (typeof window !== 'undefined') {
+      const audio = new Audio('/add-to-cart.mp3');
+      audio.volume = 0.25;
+      audio.play();
+    }
     setCart((prev) => {
       const existing = prev.find((item) => item.name === product.name);
       if (existing) {

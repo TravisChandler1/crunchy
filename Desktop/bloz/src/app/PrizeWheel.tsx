@@ -65,6 +65,12 @@ export default function PrizeWheel() {
 
   const handleSpin = () => {
     if (spinning || tries === 0) return;
+    // Play sound
+    if (typeof window !== 'undefined') {
+      const audio = new Audio('/wheel-spin.mp3');
+      audio.volume = 0.25;
+      audio.play();
+    }
     setSpinning(true);
     setResult(null);
     // Always land on 'Try Again Later' (last prize)

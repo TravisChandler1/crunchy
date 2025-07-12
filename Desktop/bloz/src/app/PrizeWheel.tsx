@@ -187,6 +187,10 @@ export default function PrizeWheel() {
           </div>
         )}
       </div>
+      {/* Add note about buying products */}
+      <div className="mt-4 text-yellow-100 text-center text-base italic max-w-lg">
+        <span>Tip: Buying products increases your chances of winning on the prize wheel!</span>
+      </div>
     </section>
   );
 } 

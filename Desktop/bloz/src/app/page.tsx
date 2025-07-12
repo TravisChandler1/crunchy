@@ -92,12 +92,31 @@ function ContactSection() {
 
 export default function Home() {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
+  const [testimonialForm, setTestimonialForm] = useState({ name: '', text: '' });
+  const [testimonialSent, setTestimonialSent] = useState(false);
   useEffect(() => {
     fetch('/api/testimonials')
       .then(res => res.json())
       .then(data => setTestimonials(data))
       .catch(() => setTestimonials([]));
   }, []);
+  const handleTestimonialChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setTestimonialForm({ ...testimonialForm, [e.target.name]: e.target.value });
+  const handleTestimonialSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await fetch('/api/testimonials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(testimonialForm),
+    });
+    setTestimonialSent(true);
+    setTestimonialForm({ name: '', text: '' });
+    // Refresh testimonials
+    fetch('/api/testimonials')
+      .then(res => res.json())
+      .then(data => setTestimonials(data))
+      .catch(() => setTestimonials([]));
+    setTimeout(() => setTestimonialSent(false), 3000);
+  };
   return (
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
       {/* Logo at the extreme top-left, above all content */}
@@ -207,6 +226,35 @@ export default function Home() {
             </div>
           </div>
         </div>
+        {/* Testimonial Submission Form */}
+        <form onSubmit={handleTestimonialSubmit} className="w-full max-w-md flex flex-col gap-4 mt-8 bg-black/30 p-6 rounded-2xl border border-yellow-200 items-center">
+          <h3 className="text-lg font-bold text-yellow-200 mb-2">Share your experience</h3>
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name"
+            value={testimonialForm.name}
+            onChange={handleTestimonialChange}
+            required
+            className="w-full px-4 py-2 rounded-lg border border-yellow-200 text-yellow-900 placeholder-yellow-700 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          />
+          <textarea
+            name="text"
+            placeholder="Your Testimonial"
+            value={testimonialForm.text}
+            onChange={handleTestimonialChange}
+            required
+            rows={3}
+            className="w-full px-4 py-2 rounded-lg border border-yellow-200 text-yellow-900 placeholder-yellow-700 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          />
+          <button
+            type="submit"
+            className="mt-2 px-8 py-3 rounded-full bg-yellow-300 text-yellow-900 font-bold text-lg shadow-lg hover:bg-yellow-400 transition"
+            disabled={testimonialSent}
+          >
+            {testimonialSent ? 'Thank you!' : 'Submit Testimonial'}
+          </button>
+        </form>
       </section>
       {/* Picture Gallery */}
       <section className="w-full max-w-3xl mb-16 overflow-x-hidden glass-card p-8 flex flex-col gap-6 items-center text-center">

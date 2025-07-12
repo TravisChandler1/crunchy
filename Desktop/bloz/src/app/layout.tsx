@@ -5,6 +5,9 @@ import React from "react";
 import FlashMessage from "./FlashMessage";
 import Footer from "./Footer";
 import PageTransitionSpinner from "./PageTransitionSpinner";
+import { CartProvider } from "./CartContext";
+import CartIconWithModal from "./CartIconWithModal";
+import OrderNotification from "./OrderNotification";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,10 +53,14 @@ export default function RootLayout({
       <body
         className={`antialiased ${geistSans.variable} ${geistMono.variable} ${pacifico.variable} ${quicksand.variable} ${tektur.variable}`}
       >
-        <PageTransitionSpinner />
-        {children}
-        <FlashMessage />
-        <Footer />
+        <CartProvider>
+          <PageTransitionSpinner />
+          <OrderNotification />
+          <CartIconWithModal />
+          {children}
+          <FlashMessage />
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

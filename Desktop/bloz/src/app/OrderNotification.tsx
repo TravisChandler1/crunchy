@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-function getOrderCity(order: any) {
+function getOrderCity(order: { city?: string; customer?: string }) {
   // Try to extract city from order.customer or order object (customize as needed)
   // For now, fallback to 'Nigeria' if not found
   return order.city || (order.customer && order.customer.split(" ").pop()) || "Nigeria";

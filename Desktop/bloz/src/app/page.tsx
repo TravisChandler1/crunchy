@@ -100,6 +100,10 @@ export default function Home() {
   }, []);
   return (
     <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
+      {/* Logo at the very top */}
+      <div className="w-full flex justify-center mt-8 mb-2 z-20">
+        <Image src="/logo-1.jpeg" alt="Crunchy Cruise Logo" width={96} height={96} className="rounded-full border-4 border-yellow-200 shadow-xl bg-white" priority />
+      </div>
       {/* Admin Icon */}
       <a href="/admin" className="fixed top-4 right-4 z-50 bg-yellow-300 text-yellow-900 rounded-full p-3 shadow-lg hover:bg-yellow-400 transition flex items-center justify-center" title="Admin Login">
         <FaUserCog className="text-2xl" />

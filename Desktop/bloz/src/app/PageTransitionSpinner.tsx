@@ -20,17 +20,27 @@ export default function PageTransitionSpinner() {
       <Image
         src="/logo-3.jpeg"
         alt="Loading..."
-        width={72}
-        height={72}
-        className="rounded-full border-4 border-yellow-200 shadow-2xl animate-spin-slow"
+        width={100}
+        height={100}
+        className="rounded-full border-4 border-yellow-200 shadow-2xl animate-grow-glow"
       />
       <style jsx global>{`
-        @keyframes spin-slow {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes grow-glow {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5), 0 0 32px 8px rgba(255, 215, 0, 0.2);
+          }
+          50% {
+            transform: scale(1.18);
+            box-shadow: 0 0 40px 16px rgba(255, 215, 0, 0.7), 0 0 64px 24px rgba(255, 215, 0, 0.3);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5), 0 0 32px 8px rgba(255, 215, 0, 0.2);
+          }
         }
-        .animate-spin-slow {
-          animation: spin-slow 1.2s linear infinite;
+        .animate-grow-glow {
+          animation: grow-glow 1.2s ease-in-out infinite;
         }
       `}</style>
     </div>

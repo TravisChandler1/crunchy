@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope, FaEdit, FaTrash } from "react-icons/fa";
+import Link from "next/link";
+import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope, FaEdit, FaTrash, FaHome } from "react-icons/fa";
 
 const ADMIN_PASSWORD = "afolabi94";
 
@@ -302,7 +303,12 @@ export default function AdminPage() {
     <div className="min-h-screen bg-black text-yellow-50 flex flex-col">
       <header className="w-full bg-[#b6862c] text-white py-6 px-8 flex items-center justify-between shadow">
         <h1 className="text-2xl font-bold tracking-wide">Admin Dashboard</h1>
-        <button onClick={handleLogout} className="px-4 py-2 rounded-full bg-black text-yellow-300 font-bold border border-yellow-200 hover:bg-yellow-900 transition">Logout</button>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="p-2 rounded-full bg-yellow-300 text-yellow-900 hover:bg-yellow-400 transition border border-yellow-200 shadow flex items-center justify-center" title="Go to Homepage">
+            <FaHome className="text-2xl" />
+          </Link>
+          <button onClick={handleLogout} className="px-4 py-2 rounded-full bg-black text-yellow-300 font-bold border border-yellow-200 hover:bg-yellow-900 transition">Logout</button>
+        </div>
       </header>
       <div className="flex flex-1 min-h-screen">
         <nav className={`transition-all duration-300 bg-black/80 border-r border-yellow-900 flex flex-col gap-2 py-8 px-2 h-screen ${sidebarOpen ? "w-56" : "w-14"}`} style={{ minWidth: sidebarOpen ? 224 : 56 }}>
@@ -329,8 +335,28 @@ export default function AdminPage() {
         <main className="flex-1 w-full p-2 sm:p-8">
           {section === "Dashboard" && (
             <div>
-              <h2 className="text-xl font-bold mb-4 text-yellow-300">Welcome to the Admin Dashboard</h2>
-              <p className="text-yellow-100 mb-2">Use the navigation to manage products, orders, testimonials, and messages.</p>
+              <h2 className="text-xl font-bold mb-2 text-yellow-300">Welcome, Olayinka!</h2>
+              <p className="text-yellow-100 mb-4">Here&apos;s a summary of everything that went down this week:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div className="bg-black/40 rounded-xl p-6 border border-yellow-900 flex flex-col items-center">
+                  {/* Product type has no createdAt/date, so count all products */}
+                  <span className="text-3xl font-bold text-yellow-300 mb-1">{products.length}</span>
+                  <span className="text-yellow-100">Products Added</span>
+                </div>
+                <div className="bg-black/40 rounded-xl p-6 border border-yellow-900 flex flex-col items-center">
+                  <span className="text-3xl font-bold text-yellow-300 mb-1">{orders.filter(o => new Date(o.date).getTime() > Date.now() - 7*24*60*60*1000).length}</span>
+                  <span className="text-yellow-100">Orders Placed</span>
+                </div>
+                <div className="bg-black/40 rounded-xl p-6 border border-yellow-900 flex flex-col items-center">
+                  <span className="text-3xl font-bold text-yellow-300 mb-1">{testimonials.filter(t => new Date(t.date).getTime() > Date.now() - 7*24*60*60*1000).length}</span>
+                  <span className="text-yellow-100">Testimonials Received</span>
+                </div>
+                <div className="bg-black/40 rounded-xl p-6 border border-yellow-900 flex flex-col items-center">
+                  <span className="text-3xl font-bold text-yellow-300 mb-1">{messages.filter(m => new Date(m.date).getTime() > Date.now() - 7*24*60*60*1000).length}</span>
+                  <span className="text-yellow-100">Messages Received</span>
+                </div>
+              </div>
+              <p className="text-yellow-200">Use the navigation to manage products, orders, testimonials, and messages.</p>
             </div>
           )}
           {section === "Products" && (

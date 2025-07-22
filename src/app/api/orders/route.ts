@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { sendEmail } from '@/utils/email';
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface OrderData {
+  customer: string;
+  email: string;
+  phone: string;
+  address: string;
+  items: OrderItem[];
+  total: number;
+}
+
 const prisma = new PrismaClient();
 
 // GET all orders
@@ -12,27 +27,39 @@ export async function GET() {
 
 // POST create a new order
 export async function POST(req: NextRequest) {
-  const data = await req.json();
-  const order = await prisma.order.create({ data });
+  const requestData = await req.json() as OrderData;
+  const orderData = {
+    customer: requestData.customer,
+    phone: requestData.phone,
+    items: JSON.stringify({
+      items: requestData.items,
+      total: requestData.total,
+      email: requestData.email,
+      address: requestData.address
+    })
+  };
+
+  const order = await prisma.order.create({ data: orderData });
+  const parsedItems = JSON.parse(order.items as string);
 
   // Send order confirmation email to customer
   await sendEmail({
-    to: data.email,
+    to: parsedItems.email,
     subject: 'Your Order Confirmation - Crunchy Plantain Chips',
     html: `
       <h2>Thank you for your order!</h2>
       <p>Order ID: ${order.id}</p>
       <p><strong>Shipping Details:</strong></p>
-      <p>Name: ${data.name}</p>
-      <p>Address: ${data.address}</p>
-      <p>Phone: ${data.phone}</p>
+      <p>Name: ${requestData.customer}</p>
+      <p>Address: ${parsedItems.address}</p>
+      <p>Phone: ${order.phone}</p>
       <p><strong>Order Details:</strong></p>
       <ul>
-        ${data.items.map((item: any) => `
+        ${parsedItems.items.map((item: OrderItem) => `
           <li>${item.name} x ${item.quantity} - ₦${item.price * item.quantity}</li>
         `).join('')}
       </ul>
-      <p><strong>Total Amount:</strong> ₦${data.total}</p>
+      <p><strong>Total Amount:</strong> ₦${parsedItems.total}</p>
       <p>We'll process your order soon!</p>
     `
   });
@@ -44,17 +71,17 @@ export async function POST(req: NextRequest) {
     html: `
       <h2>New Order #${order.id}</h2>
       <p><strong>Customer Details:</strong></p>
-      <p>Name: ${data.name}</p>
-      <p>Email: ${data.email}</p>
-      <p>Phone: ${data.phone}</p>
-      <p>Address: ${data.address}</p>
+      <p>Name: ${requestData.customer}</p>
+      <p>Email: ${parsedItems.email}</p>
+      <p>Phone: ${order.phone}</p>
+      <p>Address: ${parsedItems.address}</p>
       <p><strong>Order Details:</strong></p>
       <ul>
-        ${data.items.map((item: any) => `
+        ${parsedItems.items.map((item: OrderItem) => `
           <li>${item.name} x ${item.quantity} - ₦${item.price * item.quantity}</li>
         `).join('')}
       </ul>
-      <p><strong>Total Amount:</strong> ₦${data.total}</p>
+      <p><strong>Total Amount:</strong> ₦${parsedItems.total}</p>
     `
   });
 

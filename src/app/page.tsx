@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import React from "react";
 // Removed: import PrizeWheel from "./PrizeWheel";
 

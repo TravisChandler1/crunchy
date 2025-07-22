@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       String
+  image       String
+  createdAt   DateTime @default(now())
+  available   Boolean  @default(true)
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  customer  String
+  phone     String
+  items     Json
+  status    String   @default("pending")
+  date      DateTime @default(now())
+}
+
+model Message {
+  id      String   @id @default(uuid())
+  name    String
+  email   String
+  message String
+  date    DateTime @default(now())
+}
+
+model Settings {
+  id      Int      @id @default(1)
+  orderingEnabled Boolean @default(true)
+}
+
+model Testimonial {
+  id    String   @id @default(uuid())
+  name  String
+  text  String
+  date  DateTime @default(now())
+} 

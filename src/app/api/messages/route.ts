@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { sendEmail } from '@/utils/email';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,19 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const data = await req.json();
   const message = await prisma.message.create({ data });
+  
+  // Send email to admin
+  await sendEmail({
+    to: process.env.EMAIL_USER!,
+    subject: 'New Contact Form Submission',
+    html: `
+      <h2>New Message from ${data.name}</h2>
+      <p><strong>Email:</strong> ${data.email}</p>
+      <p><strong>Message:</strong></p>
+      <p>${data.message}</p>
+    `
+  });
+
   return NextResponse.json(message, { status: 201 });
 }
 

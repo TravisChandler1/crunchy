@@ -12,22 +12,37 @@ export async function GET() {
 
 // POST create a new message
 export async function POST(req: NextRequest) {
-  const data = await req.json();
-  const message = await prisma.message.create({ data });
-  
-  // Send email to admin
-  await sendEmail({
-    to: process.env.EMAIL_USER!,
-    subject: 'New Contact Form Submission',
-    html: `
-      <h2>New Message from ${data.name}</h2>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Message:</strong></p>
-      <p>${data.message}</p>
-    `
-  });
+  try {
+    const data = await req.json();
+    console.log('Received message data:', data);
 
-  return NextResponse.json(message, { status: 201 });
+    const message = await prisma.message.create({ data });
+    console.log('Message saved to database:', message);
+    
+    // Send email to admin
+    console.log('Attempting to send email to:', process.env.EMAIL_USER);
+    const emailResult = await sendEmail({
+      to: process.env.EMAIL_USER!,
+      subject: 'New Contact Form Submission',
+      html: `
+        <h2>New Message from ${data.name}</h2>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${data.message}</p>
+      `
+    });
+    
+    if (emailResult) {
+      console.log('Email sent successfully');
+    } else {
+      console.error('Failed to send email');
+    }
+
+    return NextResponse.json(message, { status: 201 });
+  } catch (error) {
+    console.error('Error processing message:', error);
+    return NextResponse.json({ error: 'Failed to process message' }, { status: 500 });
+  }
 }
 
 // PUT update a message by ID

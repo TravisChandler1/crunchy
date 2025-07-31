@@ -21,7 +21,7 @@ export default function AdminPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [error, setError] = useState<string>('');
+  
 
   // Add these functions
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +100,7 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error handling product:', error);
-      setError('Failed to save product. Please try again.');
+      
     }
   };
 

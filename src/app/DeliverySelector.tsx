@@ -24,18 +24,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedMapLocation, setSelectedMapLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-  // Calculate distance between two coordinates using Haversine formula
-  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
+
 
   const handleDeliveryToggle = (isDelivery: boolean) => {
     setDeliveryInfo(prev => ({
@@ -111,7 +100,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
                     address = parts.join(', ');
                   }
                 }
-              } catch (nominatimError) {
+              } catch {
                 console.log("Nominatim also failed");
               }
             } else if (geocodeData.results?.[0]) {
@@ -222,7 +211,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [deliveryInfo.address]);
+  }, [deliveryInfo.address, deliveryInfo.coordinates]);
 
   const searchAddresses = async (query: string) => {
     if (query.length < 3) {

@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import React from "react";
 // Removed: import PrizeWheel from "./PrizeWheel";
 
@@ -161,8 +161,8 @@ export default function Home() {
     setCarouselIndex(testimonials.length); // Move to the new testimonial
   };
   // Carousel navigation
-  const prevTestimonial = () => setCarouselIndex((i) => (i - 1 + testimonials.length) % testimonials.length);
-  const nextTestimonial = () => setCarouselIndex((i) => (i + 1) % testimonials.length);
+  const prevTestimonial = useCallback(() => setCarouselIndex((i) => (i - 1 + testimonials.length) % testimonials.length), [testimonials.length]);
+  const nextTestimonial = useCallback(() => setCarouselIndex((i) => (i + 1) % testimonials.length), [testimonials.length]);
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

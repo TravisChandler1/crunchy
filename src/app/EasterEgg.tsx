@@ -19,7 +19,7 @@ export default function EasterEgg() {
   return (
     <>
       <button
-        onClick={handleClick}
+        onClick={() => setShowModal(true)}
         className="bg-[#7ed957] text-white rounded-full p-3 shadow-lg hover:bg-[#45523e] hover:text-white transition flex items-center justify-center border-4 border-[#7ed957]"
         aria-label="Easter Egg"
       >

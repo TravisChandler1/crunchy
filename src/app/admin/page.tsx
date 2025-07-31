@@ -28,7 +28,18 @@ type Product = {
 type Order = {
   id: string;
   customer: string;
-  items: { name: string; quantity: number; price: string }[];
+  items: { 
+    items: { name: string; quantity: number; price: string }[];
+    total: number;
+    email: string;
+    address: string;
+    delivery?: {
+      isDelivery: boolean;
+      address: string;
+      coordinates: { lat: number; lng: number } | null;
+      deliveryCharge: number;
+    };
+  };
   status: string;
   date: string;
   phone: string;
@@ -57,6 +68,8 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productForm, setProductForm] = useState({ name: '', description: '', price: '', image: '' });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [useImageUpload, setUseImageUpload] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -137,6 +150,34 @@ export default function AdminPage() {
 
   const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProductForm({ ...productForm, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProductForm({ ...productForm, image: data.filename });
+      } else {
+        alert('Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleAddOrEditProduct = async (e: React.FormEvent) => {
@@ -437,14 +478,63 @@ export default function AdminPage() {
                   required
                   className="px-3 py-2 rounded border border-[#7ed957] bg-black/10 text-[#7ed957]"
                 />
-                <input
-                  name="image"
-                  value={productForm.image}
-                  onChange={handleProductFormChange}
-                  placeholder="Image URL"
-                  required
-                  className="px-3 py-2 rounded border border-[#7ed957] bg-black/10 text-[#7ed957]"
-                />
+                {/* Image Upload Section */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setUseImageUpload(true)}
+                      className={`px-3 py-1 rounded text-xs font-semibold transition ${useImageUpload ? 'bg-[#7ed957] text-[#45523e]' : 'bg-gray-600 text-white'}`}
+                    >
+                      Upload Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUseImageUpload(false)}
+                      className={`px-3 py-1 rounded text-xs font-semibold transition ${!useImageUpload ? 'bg-[#7ed957] text-[#45523e]' : 'bg-gray-600 text-white'}`}
+                    >
+                      Image URL
+                    </button>
+                  </div>
+                  
+                  {useImageUpload ? (
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="w-full px-3 py-2 rounded border border-[#7ed957] bg-black/10 text-[#7ed957] file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#7ed957] file:text-[#45523e] hover:file:bg-[#45523e] hover:file:text-white"
+                      />
+                      {uploadingImage && (
+                        <div className="text-[#7ed957] text-xs mt-1">Uploading image...</div>
+                      )}
+                    </div>
+                  ) : (
+                    <input
+                      name="image"
+                      value={productForm.image}
+                      onChange={handleProductFormChange}
+                      placeholder="Image URL"
+                      required
+                      className="px-3 py-2 rounded border border-[#7ed957] bg-black/10 text-[#7ed957] w-full"
+                    />
+                  )}
+                  
+                  {productForm.image && (
+                    <div className="mt-2">
+                      <div className="text-xs text-[#7ed957] mb-1">Preview:</div>
+                      <img 
+                        src={productForm.image} 
+                        alt="Product preview" 
+                        className="w-20 h-20 object-cover rounded border border-[#7ed957]"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
                 <button type="submit" className="px-4 py-2 rounded-full bg-[#7ed957] text-[#45523e] font-bold shadow hover:bg-[#45523e] transition">
                   {editingProduct ? 'Update Product' : 'Add Product'}
                 </button>
@@ -507,6 +597,7 @@ export default function AdminPage() {
                     <tr className="text-[#7ed957]">
                       <th className="p-2 border-b border-[#7ed957]">Customer</th>
                       <th className="p-2 border-b border-[#7ed957]">Items</th>
+                      <th className="p-2 border-b border-[#7ed957]">Delivery</th>
                       <th className="p-2 border-b border-[#7ed957]">Status</th>
                       <th className="p-2 border-b border-[#7ed957]">Date</th>
                       <th className="p-2 border-b border-[#7ed957]">Phone</th>
@@ -514,32 +605,59 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map(order => (
-                      <tr key={order.id} className="text-[#7ed957]">
-                        <td className="p-2 border-b border-[#7ed957] font-bold">{order.customer}</td>
-                        <td className="p-2 border-b border-[#7ed957]">
-                          <ul>
-                            {order.items.map((item, idx) => (
-                              <li key={idx}>{item.name} x{item.quantity} <span className="text-[#7ed957]">{item.price}</span></li>
-                            ))}
-                          </ul>
-                        </td>
-                        <td className="p-2 border-b border-[#7ed957]">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${order.status === 'fulfilled' ? 'bg-[#7ed957]' : order.status === 'cancelled' ? 'bg-red-600' : 'bg-yellow-700'} text-white`}>{order.status}</span>
-                        </td>
-                        <td className="p-2 border-b border-[#7ed957]">{order.date}</td>
-                        <td className="p-2 border-b border-[#7ed957]">{order.phone}</td>
-                        <td className="p-2 border-b border-[#7ed957] flex gap-2">
-                          {order.status !== 'fulfilled' && (
-                            <button onClick={() => handleOrderStatus(order.id, 'fulfilled')} className="px-2 py-1 rounded bg-[#7ed957] text-white font-bold hover:bg-[#45523e] transition text-xs">Mark Fulfilled</button>
-                          )}
-                          {order.status !== 'cancelled' && (
-                            <button onClick={() => handleOrderStatus(order.id, 'cancelled')} className="px-2 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-700 transition text-xs">Cancel</button>
-                          )}
-                          <button onClick={() => handleDeleteOrder(order.id)} className="px-2 py-1 rounded bg-[#7ed957] text-[#45523e] font-bold hover:bg-[#45523e] transition text-xs">Delete</button>
-                        </td>
-                      </tr>
-                    ))}
+                    {orders.map(order => {
+                      // Handle both old and new order formats
+                      const orderItems = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                      const items = orderItems.items || order.items;
+                      const delivery = orderItems.delivery;
+                      
+                      return (
+                        <tr key={order.id} className="text-[#7ed957]">
+                          <td className="p-2 border-b border-[#7ed957] font-bold">{order.customer}</td>
+                          <td className="p-2 border-b border-[#7ed957]">
+                            <ul>
+                              {Array.isArray(items) ? items.map((item: any, idx: number) => (
+                                <li key={idx}>{item.name} x{item.quantity} <span className="text-[#7ed957]">₦{item.price * item.quantity}</span></li>
+                              )) : (
+                                <li>Invalid order format</li>
+                              )}
+                            </ul>
+                            {orderItems.total && (
+                              <div className="font-bold mt-1">Total: ₦{orderItems.total}</div>
+                            )}
+                          </td>
+                          <td className="p-2 border-b border-[#7ed957]">
+                            {delivery ? (
+                              delivery.isDelivery ? (
+                                <div>
+                                  <div className="text-xs font-bold text-[#7ed957]">Delivery</div>
+                                  <div className="text-xs">{delivery.address}</div>
+                                  <div className="text-xs font-bold">₦{delivery.deliveryCharge}</div>
+                                </div>
+                              ) : (
+                                <div className="text-xs font-bold text-yellow-500">Pickup</div>
+                              )
+                            ) : (
+                              <div className="text-xs text-gray-500">Not specified</div>
+                            )}
+                          </td>
+                          <td className="p-2 border-b border-[#7ed957]">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${order.status === 'fulfilled' ? 'bg-[#7ed957]' : order.status === 'cancelled' ? 'bg-red-600' : 'bg-yellow-700'} text-white`}>{order.status}</span>
+                          </td>
+                          <td className="p-2 border-b border-[#7ed957]">{new Date(order.date).toLocaleDateString()}</td>
+                          <td className="p-2 border-b border-[#7ed957]">{order.phone}</td>
+                          <td className="p-2 border-b border-[#7ed957] flex gap-2">
+                            {order.status !== 'fulfilled' && (
+                              <button onClick={() => handleOrderStatus(order.id, 'fulfilled')} className="px-2 py-1 rounded bg-[#7ed957] text-white font-bold hover:bg-[#45523e] transition text-xs">Mark Fulfilled</button>
+                            )}
+                            {order.status !== 'cancelled' && (
+                              <button onClick={() => handleOrderStatus(order.id, 'cancelled')} className="px-2 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-700 transition text-xs">Cancel</button>
+                            )}
+                            <button onClick={() => handleDeleteOrder(order.id)} className="px-2 py-1 rounded bg-[#7ed957] text-[#45523e] font-bold hover:bg-[#45523e] transition text-xs">Delete</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
                 {orders.length === 0 && <div className="text-[#7ed957] mt-4">No orders yet.</div>}

@@ -15,6 +15,12 @@ interface OrderData {
   address: string;
   items: OrderItem[];
   total: number;
+  delivery?: {
+    isDelivery: boolean;
+    address: string;
+    coordinates: { lat: number; lng: number } | null;
+    deliveryCharge: number;
+  };
 }
 
 const prisma = new PrismaClient();
@@ -35,12 +41,18 @@ export async function POST(req: NextRequest) {
       items: requestData.items,
       total: requestData.total,
       email: requestData.email,
-      address: requestData.address
+      address: requestData.address,
+      delivery: requestData.delivery
     })
   };
 
   const order = await prisma.order.create({ data: orderData });
   const parsedItems = JSON.parse(order.items as string);
+
+  const deliveryInfo = parsedItems.delivery;
+  const deliveryText = deliveryInfo?.isDelivery 
+    ? `<p><strong>Delivery Address:</strong> ${deliveryInfo.address}</p><p><strong>Delivery Charge:</strong> ₦${deliveryInfo.deliveryCharge}</p>`
+    : '<p><strong>Pickup:</strong> Customer will pickup from store</p>';
 
   // Send order confirmation email to customer
   await sendEmail({
@@ -49,10 +61,10 @@ export async function POST(req: NextRequest) {
     html: `
       <h2>Thank you for your order!</h2>
       <p>Order ID: ${order.id}</p>
-      <p><strong>Shipping Details:</strong></p>
+      <p><strong>Customer Details:</strong></p>
       <p>Name: ${requestData.customer}</p>
-      <p>Address: ${parsedItems.address}</p>
       <p>Phone: ${order.phone}</p>
+      ${deliveryText}
       <p><strong>Order Details:</strong></p>
       <ul>
         ${parsedItems.items.map((item: OrderItem) => `
@@ -74,7 +86,7 @@ export async function POST(req: NextRequest) {
       <p>Name: ${requestData.customer}</p>
       <p>Email: ${parsedItems.email}</p>
       <p>Phone: ${order.phone}</p>
-      <p>Address: ${parsedItems.address}</p>
+      ${deliveryText}
       <p><strong>Order Details:</strong></p>
       <ul>
         ${parsedItems.items.map((item: OrderItem) => `

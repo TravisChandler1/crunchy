@@ -71,7 +71,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
               );
               geocodeData = await geocodeResponse.json();
               console.log("Geocoding response:", geocodeData);
-            } catch (error) {
+             } catch {
               console.log("OpenCage failed, trying alternative");
             }
             
@@ -157,7 +157,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
 
         setIsLoadingLocation(false);
       },
-      (error) => {
+      () => {
         setLocationError("Unable to retrieve your location. Please enter your address manually.");
         setIsLoadingLocation(false);
       },

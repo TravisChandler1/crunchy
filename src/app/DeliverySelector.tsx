@@ -157,8 +157,12 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
 
         setIsLoadingLocation(false);
       },
-      () => {
-        setLocationError("Unable to retrieve your location. Please enter your address manually.");
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError("Location access denied. Please enable location services in your browser or device settings.");
+        } else {
+          setLocationError("Unable to retrieve your location. Please enter your address manually.");
+        }
         setIsLoadingLocation(false);
       },
       {
@@ -541,7 +545,26 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
           )}
 
           {locationError && (
-            <div className="text-red-400 text-sm">{locationError}</div>
+            <div className="text-red-400 text-sm flex flex-col items-center gap-2">
+              {locationError}
+              {locationError.includes("Location access denied") && (
+                <>
+                  <div className="text-xs text-yellow-100">Enable location services to use this feature.</div>
+                  {/* Settings guidance: Only works for some browsers/devices */}
+                  <button
+                    className="mt-1 px-3 py-1 text-xs bg-[#7ed957] text-[#45523e] rounded hover:bg-[#45523e] hover:text-white transition"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        // Attempt to open browser/device location settings (works on Android/Chrome, not iOS/Safari)
+                        window.open('chrome://settings/content/location', '_blank');
+                      }
+                    }}
+                  >
+                    Open Location Settings
+                  </button>
+                </>
+              )}
+            </div>
           )}
 
           {/* Location confirmation step */}

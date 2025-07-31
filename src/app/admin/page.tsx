@@ -102,8 +102,44 @@ export default function AdminPage() {
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(() => setOrders([
-        { id: '1', customer: 'John Doe', items: [{ name: 'Ripe Plantain Chips', quantity: 2, price: '₦4,500' }], status: 'pending', date: '2024-06-01', phone: '+2348012345678' },
-        { id: '2', customer: 'Jane Smith', items: [{ name: 'Unripe Plantain Chips', quantity: 1, price: '₦4,500' }], status: 'fulfilled', date: '2024-06-02', phone: '+2348012345679' },
+        { 
+          id: '1', 
+          customer: 'John Doe', 
+          items: { 
+            items: [{ name: 'Ripe Plantain Chips', quantity: 2, price: '₦4,500' }],
+            total: 9000,
+            email: 'john@example.com',
+            address: '123 Sample St, Lagos',
+            delivery: {
+              isDelivery: true,
+              address: '123 Sample St, Lagos',
+              coordinates: { lat: 6.5244, lng: 3.3792 },
+              deliveryCharge: 1000
+            }
+          }, 
+          status: 'pending', 
+          date: '2024-06-01', 
+          phone: '+2348012345678' 
+        },
+        { 
+          id: '2', 
+          customer: 'Jane Smith', 
+          items: { 
+            items: [{ name: 'Unripe Plantain Chips', quantity: 1, price: '₦4,500' }],
+            total: 4500,
+            email: 'jane@example.com',
+            address: '456 Test Ave, Abuja',
+            delivery: {
+              isDelivery: true,
+              address: '456 Test Ave, Abuja',
+              coordinates: { lat: 9.0579, lng: 7.4951 },
+              deliveryCharge: 1500
+            }
+          }, 
+          status: 'fulfilled', 
+          date: '2024-06-02', 
+          phone: '+2348012345679' 
+        },
       ]));
   }, []);
 
@@ -524,9 +560,11 @@ export default function AdminPage() {
                   {productForm.image && (
                     <div className="mt-2">
                       <div className="text-xs text-[#7ed957] mb-1">Preview:</div>
-                      <img 
+                      <Image 
                         src={productForm.image} 
                         alt="Product preview" 
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded border border-[#7ed957]"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
@@ -616,7 +654,7 @@ export default function AdminPage() {
                           <td className="p-2 border-b border-[#7ed957] font-bold">{order.customer}</td>
                           <td className="p-2 border-b border-[#7ed957]">
                             <ul>
-                              {Array.isArray(items) ? items.map((item: any, idx: number) => (
+                              {Array.isArray(items) ? items.map((item: { name: string; quantity: number; price: number }, idx: number) => (
                                 <li key={idx}>{item.name} x{item.quantity} <span className="text-[#7ed957]">₦{item.price * item.quantity}</span></li>
                               )) : (
                                 <li>Invalid order format</li>

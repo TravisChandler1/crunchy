@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from "./CartContext";
-import { useRouter } from "next/navigation";
 import DeliverySelector from "./DeliverySelector";
 
 function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {

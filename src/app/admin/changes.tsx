@@ -1,3 +1,16 @@
+"use client";
+import { useState } from "react";
+import Image from "next/image";
+
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  available: boolean;
+};
+
 export default function AdminPage() {
   // ... existing imports and type definitions ...
 
@@ -6,6 +19,9 @@ export default function AdminPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [error, setError] = useState<string>('');
 
   // Add these functions
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

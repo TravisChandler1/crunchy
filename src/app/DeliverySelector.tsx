@@ -2,19 +2,22 @@
 import { useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 
-// Store coordinates - 2 Academy Ajinde Rd, estate akala express, Oluyole, Ibadan
-const STORE_COORDINATES = { lat: 7.3775, lng: 3.9470 };
-
 interface DeliverySelectorProps {
   onDeliveryChange: (hasDelivery: boolean, charge: number) => void;
 }
 
+interface AddressSuggestion {
+  geometry: { lat: number; lng: number };
+  formatted: string;
+  components?: Record<string, string>;
+}
+
 export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorProps) {
-  const { deliveryInfo, setDeliveryInfo, calculateDeliveryCharge } = useCart();
+  const { deliveryInfo, setDeliveryInfo } = useCart();
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [showMap, setShowMap] = useState(false);
-  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showManualMap, setShowManualMap] = useState(false);
@@ -333,7 +336,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
     }
   };
 
-  const selectAddress = async (suggestion: any) => {
+  const selectAddress = async (suggestion: AddressSuggestion) => {
     const { lat, lng } = suggestion.geometry;
     const address = suggestion.formatted;
     

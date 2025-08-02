@@ -8,6 +8,7 @@ import PageTransitionSpinner from "./PageTransitionSpinner";
 import { CartProvider } from "./CartContext";
 import CartIconWithModal from "./CartIconWithModal";
 import OrderNotification from "./OrderNotification";
+import ChatSupport from "./ChatSupport";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({
           <PageTransitionSpinner />
           <OrderNotification />
           <CartIconWithModal />
+          <ChatSupport />
         {children}
         <FlashMessage />
           <Footer />

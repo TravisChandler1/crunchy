@@ -11,13 +11,12 @@ function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [payName, setPayName] = useState("");
   const [payError, setPayError] = useState("");
   const [payPhone, setPayPhone] = useState("");
-  const [deliveryCharge, setDeliveryCharge] = useState(0);
   
   const subtotal = cart.reduce((sum, item) => sum + parseInt(item.price.replace(/[^\d]/g, ""), 10) * item.quantity, 0);
-  const total = subtotal + deliveryCharge;
+  const total = subtotal + deliveryInfo.deliveryCharge;
 
   const handleDeliveryChange = (hasDelivery: boolean, charge: number) => {
-    setDeliveryCharge(charge);
+    // This function is no longer needed since DeliverySelector updates the context directly
   };
 
   const validateEmail = (email: string) => {
@@ -111,7 +110,7 @@ function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
             { display_name: "Delivery", variable_name: "delivery", value: deliveryInfo.isDelivery ? "Yes" : "No" },
             ...(deliveryInfo.isDelivery ? [
               { display_name: "Delivery Address", variable_name: "delivery_address", value: deliveryInfo.address },
-              { display_name: "Delivery Charge", variable_name: "delivery_charge", value: `₦${deliveryCharge}` }
+              { display_name: "Delivery Charge", variable_name: "delivery_charge", value: `₦${deliveryInfo.deliveryCharge}` }
             ] : [])
           ]
         }
@@ -171,10 +170,10 @@ function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
             <span className="text-yellow-100">Subtotal:</span>
             <span className="text-[#7ed957] font-bold">₦{subtotal}</span>
           </div>
-          {deliveryCharge > 0 && (
+          {deliveryInfo.deliveryCharge > 0 && (
             <div className="flex justify-between items-center">
               <span className="text-yellow-100">Delivery:</span>
-              <span className="text-[#7ed957] font-bold">₦{deliveryCharge}</span>
+              <span className="text-[#7ed957] font-bold">₦{deliveryInfo.deliveryCharge}</span>
             </div>
           )}
           <div className="flex justify-between items-center pt-2 border-t border-[#7ed957]">

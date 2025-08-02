@@ -2,14 +2,17 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope, FaEdit, FaTrash, FaHome } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaBoxOpen, FaStar, FaTruck, FaCog, FaEnvelope, FaEdit, FaTrash, FaHome, FaChartLine } from "react-icons/fa";
+import NotificationSystem from "../NotificationSystem";
+import AnalyticsDashboard from "./AnalyticsDashboard";
 
 const ADMIN_PASSWORD = "afolabi94";
 
-const sections = ["Dashboard", "Products", "Orders", "Testimonials", "Messages"];
+const sections = ["Dashboard", "Analytics", "Products", "Orders", "Testimonials", "Messages"];
 
 const sectionIcons = [
   <FaCog key="Dashboard" />, // Dashboard
+  <FaChartLine key="Analytics" />, // Analytics
   <FaBoxOpen key="Products" />, // Products
   <FaTruck key="Orders" />, // Orders
   <FaStar key="Testimonials" />, // Testimonials
@@ -394,6 +397,7 @@ export default function AdminPage() {
       <header className="w-full bg-[#7ed957] text-white py-6 px-8 flex items-center justify-between shadow">
         <h1 className="text-2xl font-bold tracking-wide">Admin Dashboard</h1>
         <div className="flex items-center gap-4">
+          <NotificationSystem />
           <Link href="/" className="p-2 rounded-full bg-[#7ed957] text-[#45523e] hover:bg-[#45523e] hover:text-white transition border border-[#7ed957] shadow flex items-center justify-center" title="Go to Homepage">
             <FaHome className="text-2xl" />
           </Link>
@@ -474,6 +478,9 @@ export default function AdminPage() {
               </div>
               <p className="text-[#7ed957]">Use the navigation to manage products, orders, testimonials, and messages.</p>
             </div>
+          )}
+          {section === "Analytics" && (
+            <AnalyticsDashboard />
           )}
           {section === "Products" && (
             <div>

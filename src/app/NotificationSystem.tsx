@@ -1,34 +1,25 @@
 "use client";
-import { useState, useEffect } from "react";
-import { FaBell, FaTimes, FaCheck, FaExclamationTriangle } from "react-icons/fa";
+import { useState, useEffect, useCallback } from "react";
+import { FaBell, FaTimes, FaCheck } from "react-icons/fa";
 
-type Notification = {
+type NotificationType = 'order' | 'message' | 'system' | 'delivery';
+
+interface Notification {
   id: string;
-  type: 'order' | 'message' | 'system' | 'delivery';
+  type: NotificationType;
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   actionUrl?: string;
-};
+}
 
 export default function NotificationSystem() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    fetchNotifications(); // Initial fetch
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    setUnreadCount(notifications.filter(n => !n.read).length);
-  }, [notifications]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async (): Promise<void> => {
     try {
       const response = await fetch('/api/notifications');
       if (response.ok) {
@@ -38,37 +29,47 @@ export default function NotificationSystem() {
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
-  };
+  }, []);
 
-  const markAsRead = async (id: string) => {
+  useEffect(() => {
+    const interval = setInterval(fetchNotifications, 30000);
+    fetchNotifications(); // Initial fetch
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    setUnreadCount(notifications.filter((n: Notification) => !n.read).length);
+  }, [notifications]);
+
+  const markAsRead = useCallback(async (id: string): Promise<void> => {
     try {
       await fetch('/api/notifications', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, read: true })
       });
-      setNotifications(prev => 
+      setNotifications((prev: Notification[]) => 
         prev.map(n => n.id === id ? { ...n, read: true } : n)
       );
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
-  };
+  }, []);
 
-  const deleteNotification = async (id: string) => {
+  const deleteNotification = useCallback(async (id: string): Promise<void> => {
     try {
       await fetch('/api/notifications', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
       });
-      setNotifications(prev => prev.filter(n => n.id !== id));
+      setNotifications((prev: Notification[]) => prev.filter(n => n.id !== id));
     } catch (error) {
       console.error('Failed to delete notification:', error);
     }
-  };
+  }, []);
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type: NotificationType): string => {
     switch (type) {
       case 'order': return '🛒';
       case 'message': return '💬';
@@ -149,6 +150,17 @@ export default function NotificationSystem() {
                       </button>
                     </div>
                   </div>
+                  {notification.actionUrl && (
+                    <div className="mt-2">
+                      <a
+                        href={notification.actionUrl}
+                        className="text-sm text-[#7ed957] hover:underline"
+                        onClick={() => markAsRead(notification.id)}
+                      >
+                        View details
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))
             )}

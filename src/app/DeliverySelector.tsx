@@ -1,10 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "./CartContext";
-
-interface DeliverySelectorProps {
-  onDeliveryChange: (hasDelivery: boolean, charge: number) => void;
-}
 
 interface AddressSuggestion {
   geometry: { lat: number; lng: number };
@@ -12,7 +8,7 @@ interface AddressSuggestion {
   components?: Record<string, string>;
 }
 
-export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorProps) {
+export default function DeliverySelector() {
   const { deliveryInfo, setDeliveryInfo } = useCart();
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState("");
@@ -23,6 +19,7 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
   const [showManualMap, setShowManualMap] = useState(false);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedMapLocation, setSelectedMapLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 
 
@@ -37,7 +34,6 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
     }));
     
     if (!isDelivery) {
-      onDeliveryChange(false, 0);
       setLocationError("");
     }
   };
@@ -198,8 +194,6 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
         distance: data.distance,
         deliveryCharge: data.deliveryCharge,
       }));
-
-      onDeliveryChange(true, data.deliveryCharge);
     } catch (error) {
       console.error("Error calculating distance:", error);
       setLocationError("Failed to calculate delivery charge. Please try again.");
@@ -256,7 +250,6 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
       distance: null,
       deliveryCharge: 0,
     }));
-    onDeliveryChange(false, 0);
 
     // If address is long enough, try to geocode it and show map
     if (address.length >= 10) {
@@ -319,8 +312,6 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
         distance: distanceData.distance,
         deliveryCharge: distanceData.deliveryCharge,
       }));
-
-      onDeliveryChange(true, distanceData.deliveryCharge);
       setShowManualMap(false);
       setLocationError("");
     } catch (error) {
@@ -358,7 +349,6 @@ export default function DeliverySelector({ onDeliveryChange }: DeliverySelectorP
         deliveryCharge: distanceData.deliveryCharge,
       }));
 
-      onDeliveryChange(true, distanceData.deliveryCharge);
       setLocationError("");
     } catch (error) {
       console.error("Error calculating delivery charge:", error);

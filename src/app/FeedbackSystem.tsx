@@ -1,30 +1,41 @@
 "use client";
-import { useState, useEffect } from "react";
-import { FaStar, FaThumbsUp, FaThumbsDown, FaComment } from "react-icons/fa";
+import React, { useState, useEffect, useCallback } from "react";
+import { FaStar, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 
-type Feedback = {
+type FeedbackCategory = 'taste' | 'delivery' | 'packaging' | 'overall';
+
+interface Feedback {
   id: string;
   orderId: string;
   customerName: string;
   rating: number;
   comment: string;
-  category: 'taste' | 'delivery' | 'packaging' | 'overall';
+  category: FeedbackCategory;
   helpful: number;
   timestamp: Date;
   verified: boolean;
-};
+}
 
-type FeedbackForm = {
+interface FeedbackForm {
   orderId: string;
   customerName: string;
   rating: number;
   comment: string;
-  category: 'taste' | 'delivery' | 'packaging' | 'overall';
-};
+  category: FeedbackCategory;
+}
+
+interface RatingDistribution {
+  1: number;
+  2: number;
+  3: number;
+  4: number;
+  5: number;
+  [key: number]: number;
+}
 
 export default function FeedbackSystem() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
   const [form, setForm] = useState<FeedbackForm>({
     orderId: '',
     customerName: '',
@@ -32,27 +43,36 @@ export default function FeedbackSystem() {
     comment: '',
     category: 'overall'
   });
-  const [submitted, setSubmitted] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'taste' | 'delivery' | 'packaging' | 'overall'>('all');
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [filter, setFilter] = useState<FeedbackCategory | 'all'>('all');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetchFeedbacks();
-  }, []);
-
-  const fetchFeedbacks = async () => {
+  const fetchFeedbacks = useCallback(async () => {
     try {
+      setError('');
       const response = await fetch('/api/feedback');
       if (response.ok) {
-        const data = await response.json();
+        const data: Feedback[] = await response.json();
         setFeedbacks(data);
+      } else {
+        setError('Failed to load feedback. Please try again.');
       }
     } catch (error) {
       console.error('Failed to fetch feedbacks:', error);
+      setError('Failed to load feedback. Please check your connection.');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, [fetchFeedbacks]);
 
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    
     try {
       const response = await fetch('/api/feedback', {
         method: 'POST',
@@ -74,26 +94,40 @@ export default function FeedbackSystem() {
           setShowForm(false);
         }, 3000);
         fetchFeedbacks();
+      } else {
+        setError('Failed to submit feedback. Please try again.');
       }
     } catch (error) {
       console.error('Failed to submit feedback:', error);
+      setError('Failed to submit feedback. Please check your connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const markHelpful = async (feedbackId: string, helpful: boolean) => {
     try {
-      await fetch('/api/feedback/helpful', {
+      const response = await fetch('/api/feedback/helpful', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feedbackId, helpful })
       });
-      fetchFeedbacks();
+      
+      if (response.ok) {
+        fetchFeedbacks();
+      } else {
+        console.error('Failed to mark feedback as helpful');
+      }
     } catch (error) {
       console.error('Failed to mark feedback as helpful:', error);
     }
   };
 
-  const renderStars = (rating: number, interactive = false, onRate?: (rating: number) => void) => {
+  const renderStars = (
+    rating: number, 
+    interactive: boolean = false, 
+    onRate?: (rating: number) => void
+  ) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -103,6 +137,8 @@ export default function FeedbackSystem() {
             onClick={interactive && onRate ? () => onRate(star) : undefined}
             className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition-transform`}
             disabled={!interactive}
+            aria-label={interactive ? `Rate ${star} star${star !== 1 ? 's' : ''}` : undefined}
+            title={interactive ? `${star} star${star !== 1 ? 's' : ''}` : undefined}
           >
             <FaStar 
               className={`text-lg ${star <= rating ? 'text-yellow-500' : 'text-gray-300'}`}
@@ -113,25 +149,35 @@ export default function FeedbackSystem() {
     );
   };
 
-  const getAverageRating = () => {
-    if (feedbacks.length === 0) return 0;
+  const getAverageRating = (): string => {
+    if (feedbacks.length === 0) return '0.0';
     const sum = feedbacks.reduce((acc, feedback) => acc + feedback.rating, 0);
     return (sum / feedbacks.length).toFixed(1);
   };
 
-  const getRatingDistribution = () => {
-    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  const getRatingDistribution = (): RatingDistribution => {
+    const distribution: RatingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     feedbacks.forEach(feedback => {
-      distribution[feedback.rating as keyof typeof distribution]++;
+      // Validate rating is a valid number between 1-5
+      const rating = Math.round(feedback.rating);
+      if (rating >= 1 && rating <= 5 && Number.isInteger(rating)) {
+        distribution[rating as 1 | 2 | 3 | 4 | 5]++;
+      }
     });
     return distribution;
   };
 
-  const filteredFeedbacks = filter === 'all' 
-    ? feedbacks 
-    : feedbacks.filter(f => f.category === filter);
+  const handleFilterChange = (category: string) => {
+    if (category === 'all' || category === 'overall' || category === 'taste' || category === 'delivery' || category === 'packaging') {
+      setFilter(category as FeedbackCategory | 'all');
+    }
+  };
 
-  const distribution = getRatingDistribution();
+  const filteredFeedbacks: Feedback[] = filter === 'all' 
+    ? feedbacks 
+    : feedbacks.filter((f: Feedback) => f.category === filter);
+
+  const distribution: RatingDistribution = getRatingDistribution();
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -145,6 +191,13 @@ export default function FeedbackSystem() {
             Leave Feedback
           </button>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Rating Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -183,7 +236,7 @@ export default function FeedbackSystem() {
           {['all', 'overall', 'taste', 'delivery', 'packaging'].map(category => (
             <button
               key={category}
-              onClick={() => setFilter(category as any)}
+              onClick={() => handleFilterChange(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                 filter === category 
                   ? 'bg-[#7ed957] text-white' 
@@ -276,6 +329,12 @@ export default function FeedbackSystem() {
               </div>
             ) : (
               <form onSubmit={submitFeedback} className="space-y-4">
+                {error && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Order ID (Optional)
@@ -308,7 +367,7 @@ export default function FeedbackSystem() {
                   </label>
                   <select
                     value={form.category}
-                    onChange={(e) => setForm({...form, category: e.target.value as any})}
+                    onChange={(e) => setForm({...form, category: e.target.value as FeedbackCategory})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7ed957]"
                   >
                     <option value="overall">Overall Experience</option>
@@ -343,9 +402,10 @@ export default function FeedbackSystem() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#7ed957] text-white rounded-lg hover:bg-[#45523e] transition font-medium"
+                  disabled={loading}
+                  className="w-full py-3 bg-[#7ed957] text-white rounded-lg hover:bg-[#45523e] transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Feedback
+                  {loading ? 'Submitting...' : 'Submit Feedback'}
                 </button>
               </form>
             )}

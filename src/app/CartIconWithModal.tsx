@@ -15,9 +15,7 @@ function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const subtotal = cart.reduce((sum, item) => sum + parseInt(item.price.replace(/[^\d]/g, ""), 10) * item.quantity, 0);
   const total = subtotal + deliveryInfo.deliveryCharge;
 
-  const handleDeliveryChange = (hasDelivery: boolean, charge: number) => {
-    // This function is no longer needed since DeliverySelector updates the context directly
-  };
+  // Delivery handling is now managed directly in the DeliverySelector component
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -161,7 +159,7 @@ function CartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
         
         {cart.length > 0 && (
           <div className="w-full">
-            <DeliverySelector onDeliveryChange={handleDeliveryChange} />
+            <DeliverySelector />
           </div>
         )}
 

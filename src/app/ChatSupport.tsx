@@ -11,13 +11,13 @@ type Message = {
 };
 
 const FAQ_RESPONSES = {
-  'delivery time': 'Our delivery usually takes 30-60 minutes within Lagos. For other locations, it may take 1-3 hours depending on distance.',
+  'delivery time': 'Our delivery usually takes 3-6 hours within Ibadan. For other locations, it may take 1-3 days depending on distance.',
   'payment': 'We accept payments via Paystack (card, bank transfer, USSD). Payment is required before delivery.',
   'ingredients': 'Our chips are made from fresh plantains, palm oil, and natural seasonings. No artificial preservatives!',
   'order status': 'You can track your order using the order reference we sent to your phone. Visit our tracking page.',
   'cancel order': 'Orders can be cancelled within 10 minutes of placement. After that, please contact us directly.',
   'bulk order': 'For bulk orders (50+ packs), please contact us directly for special pricing and arrangements.',
-  'locations': 'We currently deliver within Lagos and surrounding areas. Delivery charges vary by distance.',
+  'locations': 'We currently deliver within Ibadan and surrounding areas. Delivery charges vary by distance.',
   'shelf life': 'Our chips stay fresh for 2-3 weeks when stored in a cool, dry place in the original packaging.'
 };
 
@@ -46,7 +46,7 @@ export default function ChatSupport() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,7 +93,7 @@ export default function ChatSupport() {
     setTimeout(() => {
       const botResponse = findBestResponse(inputText);
       
-      let responseText = botResponse || 
+      const responseText = botResponse || 
         "I understand you need help with that. Let me connect you with our support team for personalized assistance. In the meantime, you can also reach us on WhatsApp at +234-XXX-XXXX-XXX.";
 
       const botMessage: Message = {
@@ -174,14 +174,14 @@ export default function ChatSupport() {
           {/* Name Input */}
           {showNameInput && (
             <div className="p-4 border-b border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">What's your name?</p>
+              <p className="text-sm text-gray-600 mb-2">What&apos;s your name?</p>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Enter your name"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#7ed957]"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#7ed957]"
                   onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
                 />
                 <button
@@ -269,7 +269,7 @@ export default function ChatSupport() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Type your message..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#7ed957]"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#7ed957]"
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 />
                 <button

@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
@@ -179,9 +180,9 @@ export default function Home() {
         <Image src="/logo-3.jpeg" alt="Crunchy Cruise Logo" width={140} height={140} className="rounded-full shadow-xl bg-white" priority />
       </div>
       {/* Admin Icon */}
-      <a href="/admin" className="fixed top-4 right-4 z-50 rounded-full p-3 shadow-lg transition flex items-center justify-center" style={{ background: '#45523e' }}>
+      <Link href="/admin" className="fixed top-4 right-4 z-50 rounded-full p-3 shadow-lg transition flex items-center justify-center" style={{ background: '#45523e' }}>
         <FaUserCog className="text-2xl text-white" />
-      </a>
+      </Link>
       {/* Full Page Plantain Background */}
       <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
         <Image
@@ -204,10 +205,10 @@ export default function Home() {
         </h1>
         <p className="text-xl sm:text-2xl font-medium mb-1 text-white drop-shadow">Premium Plantain Chips</p>
         <p className="italic text-lg font-semibold drop-shadow mb-4" style={{ color: '#45523e', fontFamily: 'var(--font-brand)' }}>“As you dey crunch, just dey cruise”</p>
-        <a href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition"
+        <Link href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition"
           style={{ background: '#45523e', color: 'white' }}>
           Check Products
-        </a>
+        </Link>
       </header>
       {/* What We Offer */}
       <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>

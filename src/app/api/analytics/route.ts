@@ -1,52 +1,194 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-// Mock analytics data - in real app, this would be calculated from database
-const generateMockAnalytics = (days: number) => {
+const prisma = new PrismaClient();
+
+// Calculate real analytics from database
+const calculateRealAnalytics = async (days: number) => {
   const now = new Date();
   const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   
-  // Generate mock revenue by month data
-  const revenueByMonth = [];
-  for (let i = 0; i < Math.min(days / 30, 12); i++) {
-    const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    revenueByMonth.unshift({
-      month: month.toLocaleDateString('en-US', { month: 'short' }),
-      revenue: Math.floor(Math.random() * 500000) + 100000,
-      orders: Math.floor(Math.random() * 100) + 20
+  try {
+    // Get all orders within the date range
+    const orders = await prisma.order.findMany({
+      where: {
+        date: {
+          gte: startDate
+        }
+      }
     });
-  }
-  
-  // Generate peak hours data
-  const peakHours = [];
-  for (let hour = 0; hour < 24; hour++) {
-    peakHours.push({
-      hour,
-      orders: Math.floor(Math.random() * 20) + (hour >= 11 && hour <= 14 ? 15 : hour >= 18 && hour <= 21 ? 12 : 2)
+
+    // Get all products
+    const products = await prisma.product.findMany();
+
+    // Get all feedback for customer satisfaction
+    const feedbackResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/feedback`);
+    const feedbacks = feedbackResponse.ok ? await feedbackResponse.json() : [];
+
+    // Calculate basic metrics
+    const totalOrders = orders.length;
+    let totalRevenue = 0;
+    const ordersByStatus: { [key: string]: number } = {
+      pending: 0,
+      confirmed: 0,
+      preparing: 0,
+      ready: 0,
+      out_for_delivery: 0,
+      delivered: 0,
+      cancelled: 0
+    };
+    
+    const productSales: { [key: string]: { sales: number; revenue: number } } = {};
+    const hourlyOrders: { [key: number]: number } = {};
+    const monthlyData: { [key: string]: { revenue: number; orders: number } } = {};
+
+    // Initialize hourly orders (0-23 hours)
+    for (let i = 0; i < 24; i++) {
+      hourlyOrders[i] = 0;
+    }
+
+    // Process each order
+    orders.forEach(order => {
+      try {
+        const orderData = JSON.parse(order.items as string);
+        const orderTotal = orderData.total || 0;
+        totalRevenue += orderTotal;
+
+        // Count orders by status (default to 'delivered' for completed orders)
+        const status = order.status || 'delivered';
+        if (ordersByStatus.hasOwnProperty(status)) {
+          ordersByStatus[status]++;
+        } else {
+          ordersByStatus['delivered']++;
+        }
+
+        // Track hourly orders
+        const orderHour = new Date(order.date).getHours();
+        hourlyOrders[orderHour]++;
+
+        // Track monthly data
+        const orderMonth = new Date(order.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        if (!monthlyData[orderMonth]) {
+          monthlyData[orderMonth] = { revenue: 0, orders: 0 };
+        }
+        monthlyData[orderMonth].revenue += orderTotal;
+        monthlyData[orderMonth].orders++;
+
+        // Track product sales
+        if (orderData.items && Array.isArray(orderData.items)) {
+          orderData.items.forEach((item: any) => {
+            const productName = item.name;
+            if (!productSales[productName]) {
+              productSales[productName] = { sales: 0, revenue: 0 };
+            }
+            productSales[productName].sales += item.quantity;
+            productSales[productName].revenue += (item.price * item.quantity);
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing order data:', error);
+      }
     });
+
+    // Calculate average order value
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    // Calculate customer satisfaction from feedback
+    let customerSatisfaction = 0;
+    if (feedbacks.length > 0) {
+      const totalRating = feedbacks.reduce((sum: number, feedback: any) => sum + (feedback.rating || 0), 0);
+      customerSatisfaction = totalRating / feedbacks.length;
+    }
+
+    // Calculate delivery performance (percentage of delivered orders)
+    const deliveredOrders = ordersByStatus.delivered || 0;
+    const deliveryPerformance = totalOrders > 0 ? (deliveredOrders / totalOrders) * 100 : 0;
+
+    // Calculate customer retention (simplified - customers with more than 1 order)
+    const customerEmails = new Set();
+    const returningCustomers = new Set();
+    orders.forEach(order => {
+      try {
+        const orderData = JSON.parse(order.items as string);
+        const email = orderData.email;
+        if (email) {
+          if (customerEmails.has(email)) {
+            returningCustomers.add(email);
+          } else {
+            customerEmails.add(email);
+          }
+        }
+      } catch (error) {
+        console.error('Error processing customer data:', error);
+      }
+    });
+    const customerRetention = customerEmails.size > 0 ? (returningCustomers.size / customerEmails.size) * 100 : 0;
+
+    // Format top products
+    const topProducts = Object.entries(productSales)
+      .sort(([,a], [,b]) => b.revenue - a.revenue)
+      .slice(0, 5)
+      .map(([name, data]) => ({
+        name,
+        sales: data.sales,
+        revenue: data.revenue
+      }));
+
+    // Format revenue by month (last 6 months)
+    const revenueByMonth = Object.entries(monthlyData)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .slice(-6)
+      .map(([month, data]) => ({
+        month: month.split(' ')[0], // Just the month abbreviation
+        revenue: data.revenue,
+        orders: data.orders
+      }));
+
+    // Format orders by status
+    const ordersByStatusArray = Object.entries(ordersByStatus)
+      .filter(([, count]) => count > 0)
+      .map(([status, count]) => ({
+        status,
+        count
+      }));
+
+    // Format peak hours
+    const peakHours = Object.entries(hourlyOrders)
+      .map(([hour, orders]) => ({
+        hour: parseInt(hour),
+        orders
+      }));
+
+    return {
+      totalOrders,
+      totalRevenue,
+      averageOrderValue: Math.round(averageOrderValue),
+      customerSatisfaction: Math.round(customerSatisfaction * 10) / 10, // Round to 1 decimal
+      deliveryPerformance: Math.round(deliveryPerformance),
+      customerRetention: Math.round(customerRetention),
+      topProducts,
+      revenueByMonth,
+      ordersByStatus: ordersByStatusArray,
+      peakHours
+    };
+
+  } catch (error) {
+    console.error('Error calculating analytics:', error);
+    
+    // Return fallback data if database query fails
+    return {
+      totalOrders: 0,
+      totalRevenue: 0,
+      averageOrderValue: 0,
+      customerSatisfaction: 0,
+      deliveryPerformance: 0,
+      customerRetention: 0,
+      topProducts: [],
+      revenueByMonth: [],
+      ordersByStatus: [],
+      peakHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, orders: 0 }))
+    };
   }
-  
-  return {
-    totalOrders: Math.floor(Math.random() * 1000) + 200,
-    totalRevenue: Math.floor(Math.random() * 2000000) + 500000,
-    averageOrderValue: Math.floor(Math.random() * 5000) + 3000,
-    customerSatisfaction: 4.2 + Math.random() * 0.6,
-    deliveryPerformance: 85 + Math.random() * 10,
-    customerRetention: 65 + Math.random() * 20,
-    topProducts: [
-      { name: 'Ripe Plantain Chips', sales: 150, revenue: 675000 },
-      { name: 'Unripe Plantain Chips', sales: 120, revenue: 540000 },
-      { name: 'Mixed Pack', sales: 80, revenue: 400000 }
-    ],
-    revenueByMonth,
-    ordersByStatus: [
-      { status: 'delivered', count: 180 },
-      { status: 'pending', count: 25 },
-      { status: 'preparing', count: 15 },
-      { status: 'out_for_delivery', count: 10 },
-      { status: 'cancelled', count: 5 }
-    ],
-    peakHours
-  };
 };
 
 export async function GET(request: NextRequest) {
@@ -54,10 +196,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days') || '30');
     
-    const analytics = generateMockAnalytics(days);
+    const analytics = await calculateRealAnalytics(days);
     
     return NextResponse.json(analytics);
   } catch (error) {
+    console.error('Analytics API error:', error);
     return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
   }
 }

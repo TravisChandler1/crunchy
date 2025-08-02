@@ -1,19 +1,41 @@
 "use client";
-import { useState, useEffect } from "react";
-import { FaChartLine, FaUsers, FaShoppingCart, FaStar, FaTruck, FaCalendarAlt, FaDownload } from "react-icons/fa";
+import { useState, useEffect, useCallback } from "react";
+import { FaChartLine, FaUsers, FaShoppingCart, FaStar, FaDownload } from "react-icons/fa";
 
-type AnalyticsData = {
+interface TopProduct {
+  name: string;
+  sales: number;
+  revenue: number;
+}
+
+interface RevenueByMonth {
+  month: string;
+  revenue: number;
+  orders: number;
+}
+
+interface OrderStatus {
+  status: string;
+  count: number;
+}
+
+interface PeakHour {
+  hour: number;
+  orders: number;
+}
+
+interface AnalyticsData {
   totalOrders: number;
   totalRevenue: number;
   averageOrderValue: number;
   customerSatisfaction: number;
   deliveryPerformance: number;
-  topProducts: { name: string; sales: number; revenue: number }[];
-  revenueByMonth: { month: string; revenue: number; orders: number }[];
-  ordersByStatus: { status: string; count: number }[];
+  topProducts: TopProduct[];
+  revenueByMonth: RevenueByMonth[];
+  ordersByStatus: OrderStatus[];
   customerRetention: number;
-  peakHours: { hour: number; orders: number }[];
-};
+  peakHours: PeakHour[];
+}
 
 export default function AnalyticsDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -21,11 +43,7 @@ export default function AnalyticsDashboard() {
   const [dateRange, setDateRange] = useState('30'); // days
   const [selectedMetric, setSelectedMetric] = useState<'revenue' | 'orders'>('revenue');
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       const response = await fetch(`/api/analytics?days=${dateRange}`);
@@ -38,9 +56,15 @@ export default function AnalyticsDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
 
-  const exportData = async () => {
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
+
+
+
+  const exportData = async (): Promise<void> => {
     try {
       const response = await fetch(`/api/analytics/export?days=${dateRange}`);
       if (response.ok) {
@@ -174,7 +198,7 @@ export default function AnalyticsDashboard() {
             </div>
           </div>
           <div className="h-64 flex items-end justify-between gap-2">
-            {analytics.revenueByMonth.map((data, index) => {
+            {analytics.revenueByMonth.map((data: RevenueByMonth, index: number) => {
               const value = selectedMetric === 'revenue' ? data.revenue : data.orders;
               const maxValue = Math.max(
                 ...analytics.revenueByMonth.map(d => 
@@ -203,7 +227,7 @@ export default function AnalyticsDashboard() {
         <div className="bg-black/40 rounded-xl p-6 border border-[#7ed957]">
           <h3 className="text-lg font-bold text-[#7ed957] mb-4">Top Products</h3>
           <div className="space-y-3">
-            {analytics.topProducts.map((product, index) => (
+            {analytics.topProducts.map((product: TopProduct, index: number) => (
               <div key={index} className="flex justify-between items-center">
                 <div>
                   <p className="text-white font-medium">{product.name}</p>
@@ -222,8 +246,8 @@ export default function AnalyticsDashboard() {
         <div className="bg-black/40 rounded-xl p-6 border border-[#7ed957]">
           <h3 className="text-lg font-bold text-[#7ed957] mb-4">Order Status</h3>
           <div className="space-y-3">
-            {analytics.ordersByStatus.map((status, index) => {
-              const total = analytics.ordersByStatus.reduce((sum, s) => sum + s.count, 0);
+            {analytics.ordersByStatus.map((status: OrderStatus, index: number) => {
+              const total = analytics.ordersByStatus.reduce((sum: number, s: OrderStatus) => sum + s.count, 0);
               const percentage = (status.count / total) * 100;
               
               return (
@@ -248,8 +272,8 @@ export default function AnalyticsDashboard() {
         <div className="bg-black/40 rounded-xl p-6 border border-[#7ed957]">
           <h3 className="text-lg font-bold text-[#7ed957] mb-4">Peak Order Hours</h3>
           <div className="h-32 flex items-end justify-between gap-1">
-            {analytics.peakHours.map((hour, index) => {
-              const maxOrders = Math.max(...analytics.peakHours.map(h => h.orders));
+            {analytics.peakHours.map((hour: PeakHour, index: number) => {
+              const maxOrders = Math.max(...analytics.peakHours.map((h: PeakHour) => h.orders));
               const height = (hour.orders / maxOrders) * 100;
               
               return (

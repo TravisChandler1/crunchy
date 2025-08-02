@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import OrderTracker from "../OrderTracker";
 
 export default function TrackPage() {
@@ -8,12 +9,12 @@ export default function TrackPage() {
       <header className="w-full bg-[#7ed957] text-white py-6 px-8 shadow">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-wide">Track Your Order</h1>
-          <a 
+          <Link 
             href="/" 
             className="px-4 py-2 bg-black text-[#7ed957] rounded-lg hover:bg-[#45523e] hover:text-white transition font-medium"
           >
             Back to Home
-          </a>
+          </Link>
         </div>
       </header>
 

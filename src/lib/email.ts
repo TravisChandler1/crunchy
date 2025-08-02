@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 // Email transporter configuration
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false, // true for 465, false for other ports
@@ -216,7 +216,7 @@ export const emailTemplates = {
               <li>🌱 100% natural ingredients</li>
               <li>🚚 Fast delivery across Lagos</li>
               <li>✅ NAFDAC approved</li>
-              <li>��� Beautiful packaging</li>
+              <li>📦 Beautiful packaging</li>
               <li>⭐ Premium quality guaranteed</li>
             </ul>
             

@@ -94,7 +94,7 @@ export default function ChatSupport() {
       const botResponse = findBestResponse(inputText);
       
       const responseText = botResponse || 
-        "I understand you need help with that. Let me connect you with our support team for personalized assistance. In the meantime, you can also reach us on WhatsApp at +234-XXX-XXXX-XXX.";
+        "I understand you need help with that. Let me connect you with our support team for personalized assistance. In the meantime, you can also reach us on WhatsApp at +2348101718187.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),

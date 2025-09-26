@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaQuoteLeft, FaQuoteRight, FaTruck, FaStar, FaLeaf, FaBoxOpen, FaUserCog, FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
+import ScrollReveal from "./ScrollReveal";
 // Removed: import PrizeWheel from "./PrizeWheel";
 
 const galleryImages = [
@@ -174,7 +175,7 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [testimonials.length, nextTestimonial, prevTestimonial]);
   return (
-    <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden">
+    <div className="relative min-h-screen font-sans flex flex-col items-center p-0 text-[var(--foreground)] overflow-x-hidden select-none animate-page-fade-in" onContextMenu={(e) => e.preventDefault()} onCopy={(e) => e.preventDefault()}>
       {/* Logo at the extreme top-left, above all content */}
       <div className="absolute top-6 left-6 z-30">
         <Image src="/logo-3.jpeg" alt="Crunchy Cruise Logo" width={140} height={140} className="rounded-full shadow-xl bg-white" priority />
@@ -190,10 +191,10 @@ export default function Home() {
           alt="Plantain chips background"
           fill
           priority
-          className="object-cover w-full h-full select-none pointer-events-none"
+          className="object-cover w-full h-full select-none pointer-events-none animate-kenburns"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-black/92" />
+        <div className="absolute inset-0 bg-black/70" />
       </div>
       {/* Hero Section */}
       <header className="w-full max-w-3xl text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12 bg-white/10 rounded-3xl shadow-xl border border-white/20 backdrop-blur-md">
@@ -205,12 +206,13 @@ export default function Home() {
         </h1>
         <p className="text-xl sm:text-2xl font-medium mb-1 text-white drop-shadow">Premium Plantain Chips</p>
         <p className="italic text-lg font-semibold drop-shadow mb-4" style={{ color: '#45523e', fontFamily: 'var(--font-brand)' }}>“As you dey crunch, just dey cruise”</p>
-        <Link href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition"
+        <Link href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition animate-fade-in-up hover:scale-105"
           style={{ background: '#45523e', color: 'white' }}>
           Check Products
         </Link>
       </header>
       {/* What We Offer */}
+      <ScrollReveal>
       <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>
         <h2 className="text-2xl font-bold mb-6" style={{ color: '#7ed957' }}>What We Offer</h2>
         <div className="max-w-3xl w-full mx-auto flex flex-col sm:flex-row flex-wrap gap-6 justify-center items-stretch">
@@ -248,12 +250,15 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
       {/* About Section */}
+      <ScrollReveal>
       <section className="w-full max-w-3xl mb-12 mt-4 glass-card p-8 flex flex-col gap-2 items-center text-center">
         <h2 className="text-2xl font-bold mb-2 text-white" style={{ color: '#7ed957' }}>About Our Chips</h2>
         <p className="text-base sm:text-lg text-white">Crunchy Cruise Snacks brings you the finest plantain chips, crafted with care from the freshest plantains. Whether you love the sweet taste of ripe plantains or the hearty crunch of unripe ones, our chips are the perfect companion for your cruise through life. Enjoy them at home, at work, or on the go!</p>
-      </section>
-      {/* Product Carousel */}
+       </section>
+       </ScrollReveal>
+       {/* Product Carousel */}
       <section id="products" className="w-full max-w-3xl mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center">
         <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Our Products</h2>
         <div className="flex flex-col sm:flex-row gap-8 items-center justify-center w-full">
@@ -364,14 +369,6 @@ export default function Home() {
         {showTestimonialModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
             <div className="glass-card p-8 rounded-3xl shadow-2xl border flex flex-col items-center max-w-md w-full min-w-[320px]" style={{ borderColor: '#45523e' }}>
-              <button
-                onClick={() => setShowTestimonialModal(false)}
-                className="absolute top-4 right-4 text-3xl bg-black/30 rounded-full w-10 h-10 flex items-center justify-center border shadow"
-                aria-label="Close"
-                style={{ color: '#45523e', borderColor: '#45523e' }}
-              >
-                &times;
-              </button>
               <h3 className="text-lg font-bold mb-2" style={{ color: '#45523e' }}>Share your experience</h3>
               <form onSubmit={handleTestimonialSubmit} className="w-full flex flex-col gap-4 mt-2 items-center">
                 <input
@@ -403,6 +400,13 @@ export default function Home() {
                   {testimonialSent ? 'Thank you!' : 'Submit Testimonial'}
                 </button>
               </form>
+              <button
+                onClick={() => setShowTestimonialModal(false)}
+                className="mt-4 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition"
+                style={{ background: '#7ed957', color: '#45523e' }}
+              >
+                Close
+              </button>
             </div>
           </div>
         )}

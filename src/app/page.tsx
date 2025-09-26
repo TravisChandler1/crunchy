@@ -185,7 +185,7 @@ export default function Home() {
         <FaUserCog className="text-2xl text-white" />
       </Link>
       {/* Full Page Plantain Background */}
-      <div className="absolute inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
+      <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
         <Image
           src="/plantain-bg.png"
           alt="Plantain chips background"
@@ -259,9 +259,9 @@ export default function Home() {
        </section>
        </ScrollReveal>
        {/* Product Carousel */}
-      <section id="products" className="w-full max-w-3xl mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center">
-        <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Our Products</h2>
-        <div className="flex flex-col sm:flex-row gap-8 items-center justify-center w-full">
+       <section id="products" className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center">
+         <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Our Products</h2>
+         <div className="flex flex-col sm:flex-row gap-8 items-center justify-center w-full px-8">
           {products.map((product) => (
             <div
               key={product.name}

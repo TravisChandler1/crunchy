@@ -241,19 +241,7 @@ export default function ProductsPage() {
   const getPriceValue = (price: string) => parseInt(price.replace(/[^\d]/g, ""), 10) || 0;
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center py-16 px-4 animate-page-fade-in">
-      {/* Full Page Plantain Background */}
-      <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
-        <Image
-          src="/plantain-bg.png"
-          alt="Plantain chips background"
-          fill
-          priority
-          className="object-cover w-full h-full select-none pointer-events-none"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-black/87" />
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black py-16 px-4">
       <div className="w-full max-w-4xl flex items-center mb-8">
         <Link href="/" className="glass-card flex items-center gap-2 px-5 py-2 rounded-full shadow border border-[#7ed957] text-[#7ed957] font-bold hover:bg-[#45523e] hover:text-white transition">
           <FaArrowLeft className="text-lg" />

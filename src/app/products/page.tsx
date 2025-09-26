@@ -252,7 +252,7 @@ export default function ProductsPage() {
           className="object-cover w-full h-full select-none pointer-events-none"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-black/85" />
+        <div className="absolute inset-0 bg-black/89" />
       </div>
       <div className="w-full max-w-4xl flex items-center mb-8">
         <Link href="/" className="glass-card flex items-center gap-2 px-5 py-2 rounded-full shadow border border-[#7ed957] text-[#7ed957] font-bold hover:bg-[#45523e] hover:text-white transition">

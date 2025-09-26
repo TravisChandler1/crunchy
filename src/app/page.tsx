@@ -193,7 +193,7 @@ export default function Home() {
           className="object-cover w-full h-full select-none pointer-events-none"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-black/85" />
+        <div className="absolute inset-0 bg-black/89" />
       </div>
       {/* Hero Section */}
       <header className="w-full max-w-3xl text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12 bg-white/10 rounded-3xl shadow-xl border border-white/20 backdrop-blur-md">
@@ -205,7 +205,7 @@ export default function Home() {
         </h1>
         <p className="text-xl sm:text-2xl font-medium mb-1 text-white drop-shadow">Premium Plantain Chips</p>
         <p className="italic text-lg font-semibold drop-shadow mb-4" style={{ color: '#45523e', fontFamily: 'var(--font-brand)' }}>“As you dey crunch, just dey cruise”</p>
-        <Link href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition"
+        <Link href="/products" className="inline-block mt-2 px-8 py-3 rounded-full font-bold text-lg shadow-lg transition hover:scale-105 transition-transform duration-300"
           style={{ background: '#45523e', color: 'white' }}>
           Check Products
         </Link>

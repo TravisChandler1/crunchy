@@ -185,7 +185,7 @@ export default function Home() {
         <FaUserCog className="text-2xl text-white" />
       </Link>
       {/* Full Page Plantain Background */}
-      <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
+      <div className="absolute inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
         <Image
           src="/plantain-bg.png"
           alt="Plantain chips background"
@@ -215,7 +215,7 @@ export default function Home() {
       <ScrollReveal>
       <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>
         <h2 className="text-2xl font-bold mb-6" style={{ color: '#7ed957' }}>What We Offer</h2>
-        <div className="max-w-3xl w-full mx-auto flex flex-col sm:flex-row flex-wrap gap-6 justify-center items-stretch">
+        <div className="w-full px-8 flex flex-col sm:flex-row flex-wrap gap-6 justify-center items-stretch">
           {/* Delivery */}
           <div className="glass-card flex-1 min-w-[220px] max-w-xs h-full flex flex-col items-center p-8 gap-3 animate-fade-in-up animate-float mx-auto my-4 shadow-xl" style={{ zIndex: 1 }}>
             <FaTruck className="text-white text-4xl mb-1" />

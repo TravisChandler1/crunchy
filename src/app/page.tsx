@@ -184,20 +184,20 @@ export default function Home() {
       <Link href="/admin" className="fixed top-4 right-4 z-50 rounded-full p-3 shadow-lg transition flex items-center justify-center" style={{ background: '#45523e' }}>
         <FaUserCog className="text-2xl text-white" />
       </Link>
-      {/* Full Page Plantain Background */}
-      <div className="fixed inset-0 w-full min-h-screen h-full -z-20 overflow-hidden">
-        <Image
-          src="/plantain-bg.png"
-          alt="Plantain chips background"
-          fill
-          priority
-          className="object-cover w-full h-full select-none pointer-events-none"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-black/87" />
-      </div>
       {/* Hero Section */}
-      <header className="w-full max-w-3xl text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12 bg-white/10 rounded-3xl shadow-xl border border-white/20 backdrop-blur-md">
+      <div className="w-full max-w-3xl text-center mt-24 mb-12 relative flex flex-col items-center gap-4 py-12 rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <Image
+            src="/plantain-bg.png"
+            alt="Plantain chips background"
+            fill
+            priority
+            className="object-cover w-full h-full select-none pointer-events-none"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black/87" />
+        </div>
+        <header className="relative z-10 flex flex-col items-center gap-4 py-12 bg-white/10 rounded-3xl shadow-xl border border-white/20 backdrop-blur-md w-full">
         <h1
           className="text-4xl sm:text-5xl font-bold mb-2 tracking-tight drop-shadow-lg"
           style={{ color: '#7ed957', fontFamily: 'var(--font-brand)' }}
@@ -211,6 +211,7 @@ export default function Home() {
           Check Products
         </Link>
       </header>
+      </div>
       {/* What We Offer */}
       <ScrollReveal>
       <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>

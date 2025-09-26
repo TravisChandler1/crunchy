@@ -191,10 +191,10 @@ export default function Home() {
           alt="Plantain chips background"
           fill
           priority
-          className="object-cover w-full h-full select-none pointer-events-none animate-kenburns"
+          className="object-cover w-full h-full select-none pointer-events-none"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/87" />
       </div>
       {/* Hero Section */}
       <header className="w-full max-w-3xl text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12 bg-white/10 rounded-3xl shadow-xl border border-white/20 backdrop-blur-md">

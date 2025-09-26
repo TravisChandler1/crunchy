@@ -185,7 +185,7 @@ export default function Home() {
         <FaUserCog className="text-2xl text-white" />
       </Link>
       {/* Hero Section */}
-      <div className="w-full max-w-3xl text-center mt-24 mb-12 relative flex flex-col items-center gap-4 py-12 rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+      <div className="w-full max-w-3xl text-center mt-24 mb-24 relative flex flex-col items-center gap-4 py-12 rounded-3xl shadow-xl border border-white/20 overflow-hidden">
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <Image
             src="/plantain-bg.png"
@@ -214,7 +214,7 @@ export default function Home() {
       </div>
       {/* What We Offer */}
       <ScrollReveal>
-      <section className="w-full text-center mt-24 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>
+      <section className="w-full text-center mt-0 mb-12 relative z-10 flex flex-col items-center gap-4 py-12" style={{ background: '#45523e' }}>
         <h2 className="text-2xl font-bold mb-6" style={{ color: '#7ed957' }}>What We Offer</h2>
         <div className="w-full px-8 flex flex-col sm:flex-row flex-wrap gap-6 justify-center items-stretch">
           {/* Delivery */}

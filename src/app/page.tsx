@@ -254,13 +254,13 @@ export default function Home() {
       </ScrollReveal>
       {/* About Section */}
       <ScrollReveal>
-      <section className="w-full max-w-3xl mb-12 mt-4 glass-card p-8 flex flex-col gap-2 items-center text-center">
-        <h2 className="text-2xl font-bold mb-2 text-white" style={{ color: '#7ed957' }}>About Our Chips</h2>
-        <p className="text-base sm:text-lg text-white">Crunchy Cruise Snacks brings you the finest plantain chips, crafted with care from the freshest plantains. Whether you love the sweet taste of ripe plantains or the hearty crunch of unripe ones, our chips are the perfect companion for your cruise through life. Enjoy them at home, at work, or on the go!</p>
+      <section className="w-full max-w-3xl mb-0 mt-0 glass-card p-8 flex flex-col gap-2 items-center text-center" style={{ background: 'lightgrey' }}>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#7ed957' }}>About Our Chips</h2>
+        <p className="text-base sm:text-lg">Crunchy Cruise Snacks brings you the finest plantain chips, crafted with care from the freshest plantains. Whether you love the sweet taste of ripe plantains or the hearty crunch of unripe ones, our chips are the perfect companion for your cruise through life. Enjoy them at home, at work, or on the go!</p>
        </section>
        </ScrollReveal>
        {/* Product Carousel */}
-       <section id="products" className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center" style={{ background: 'white' }}>
+       <section id="products" className="w-full mb-0 glass-card p-8 flex flex-col gap-6 items-center text-center" style={{ background: 'lightgrey' }}>
          <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Our Products</h2>
          <div className="flex flex-col sm:flex-row gap-8 items-center justify-center w-full px-8">
           {products.map((product) => (

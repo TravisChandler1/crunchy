@@ -260,7 +260,7 @@ export default function Home() {
        </section>
        </ScrollReveal>
        {/* Product Carousel */}
-       <section id="products" className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center">
+       <section id="products" className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center" style={{ background: 'white' }}>
          <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Our Products</h2>
          <div className="flex flex-col sm:flex-row gap-8 items-center justify-center w-full px-8">
           {products.map((product) => (
@@ -285,7 +285,7 @@ export default function Home() {
         </div>
       </section>
       {/* Testimonials */}
-      <section className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center relative overflow-hidden">
+      <section className="w-full mb-12 glass-card p-8 flex flex-col gap-6 items-center text-center relative overflow-hidden" style={{ background: 'white' }}>
         <h2 className="text-2xl font-bold mb-4" style={{ color: '#7ed957' }}>Testimonials</h2>
         <div className="relative w-full flex flex-col items-center">
           <div
